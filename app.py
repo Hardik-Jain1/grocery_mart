@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
@@ -8,7 +9,11 @@ from flask_bcrypt import  bcrypt
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.sqlite3"
+current_dir = os.path.abspath(os.path.dirname(__file__))
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(
+  current_dir, "database.sqlite3")
 app.config['SECRET_KEY'] = 'thisisasecretkey'
 db = SQLAlchemy()
 db.init_app(app)
@@ -22,7 +27,7 @@ login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return Users.query.get(int(user_id))
 
 
 class Users(UserMixin, db.Model):
@@ -45,7 +50,7 @@ class Products(db.Model):
     section_id = db.Column(db.Integer, db.ForeignKey('sections.section_id'))
     section = db.relationship('Sections', backref=db.backref('products', lazy=True))
 
-db.create_all()
+# db.create_all()
     
 class RegisterForm(FlaskForm):
     username = StringField(validators=[
@@ -81,9 +86,16 @@ class LoginForm(FlaskForm):
 def home():
     return render_template("home.html")
 
-@app.route("/user_login")
+@app.route("/user_login", methods=["GET", "POST"])
 def user_login():
-    return render_template("user_login.html")
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = Users.query.filter_by(user_name=form.username.data).first()
+        if user:
+            if bcrypt.checkpw(form.password.data.encode('utf-8'), user.password):
+                # login_user(user)
+                return redirect(url_for('home'))
+    return render_template('user_login.html', form=form)
 
 @app.route("/user_register", methods=['GET', 'POST'])
 def user_register():

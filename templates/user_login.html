@@ -6,7 +6,16 @@
     <title>User Login</title>
 </head>
 <body>
-    <h1>User Login Page</h1>
+    <h1>Login Page</h1>
+    <form action="" method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.username }}
+        <br><br>
+        {{ form.password }}
+        <br><br>
+        {{ form.submit }}
+    </form>
+    <br><br>
     <a href="{{url_for('home')}}">Home</a>
 </body>
 </html>
