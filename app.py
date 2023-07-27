@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
@@ -31,17 +31,23 @@ def load_user(user_id):
 
 
 class Users(UserMixin, db.Model):
+    __tablename__ = "users"
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_name = db.Column(db.String(200), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(200), nullable=False)
 
+    def get_id(self):
+        return str(self.user_id) 
+
 class Sections(db.Model):
+    __tablename__ = "sections"
     section_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     section_name = db.Column(db.String(200), nullable=False)
     number_of_products = db.Column(db.Integer)
 
 class Products(db.Model):
+    __tablename__ = "products"
     product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     product_name = db.Column(db.String(200), nullable=False)
     manufacture_date = db.Column(db.Date)
@@ -49,6 +55,14 @@ class Products(db.Model):
     rate_per_unit = db.Column(db.Float, nullable=False)
     section_id = db.Column(db.Integer, db.ForeignKey('sections.section_id'))
     section = db.relationship('Sections', backref=db.backref('products', lazy=True))
+
+class CartItem(db.Model):
+    __tablename__ = "cartitems"
+    cart_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    item = db.relationship('Products', backref=db.backref('products', lazy=True))
 
 # db.create_all()
     
@@ -86,17 +100,6 @@ class LoginForm(FlaskForm):
 def home():
     return render_template("home.html")
 
-@app.route("/user_login", methods=["GET", "POST"])
-def user_login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = Users.query.filter_by(user_name=form.username.data).first()
-        if user:
-            if bcrypt.checkpw(form.password.data.encode('utf-8'), user.password):
-                # login_user(user)
-                return redirect(url_for('home'))
-    return render_template('user_login.html', form=form)
-
 @app.route("/user_register", methods=['GET', 'POST'])
 def user_register():
     form = RegisterForm()
@@ -109,6 +112,55 @@ def user_register():
         return redirect(url_for('user_login'))
 
     return render_template('user_register.html', form=form)
+
+@app.route("/user_login", methods=["GET", "POST"])
+def user_login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = Users.query.filter_by(user_name=form.username.data).first()
+        if user:
+            if bcrypt.checkpw(form.password.data.encode('utf-8'), user.password):
+                login_user(user)
+                return redirect(url_for('user_dashboard'))
+    return render_template('user_login.html', form=form)
+
+@app.route("/admin_login", methods=["GET", "POST"])
+def admin_login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        admin = Users.query.filter_by(user_name=form.username.data).first()
+        if user:
+            if bcrypt.checkpw(form.password.data.encode('utf-8'), admin.password):
+                login_user(admin)
+                return redirect(url_for('admin_dashboard'))
+    return render_template('admin_login.html', form=form)
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("home"))
+
+@app.route("/user_dashboard")
+@login_required
+def user_dashboard():
+    products = Products.query.all()
+    return render_template('user_dashboard.html', products=products)
+
+@app.route("/add_to_cart/<int:item_id>", methods=["POST"])
+@login_required
+def add_to_cart(item_id):
+    quantity = int(request.form['quantity'])
+    cart_item = CartItem(user_id=current_user.user_id, item_id=item_id, quantity=quantity)
+    db.session.add(cart_item)
+    db.session.commit()
+    return redirect(url_for('user_dashboard'))
+
+@app.route("/view_cart")
+@login_required
+def view_cart():
+    cart_items = CartItem.query.filter_by(user_id=current_user.user_id).all()
+    return render_template('view_cart.html', cart_items=cart_items)
 
 
 if __name__ == "__main__":
