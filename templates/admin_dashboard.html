@@ -1,12 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
 </head>
 <body>
-    <h1>Admin Dashboard Page</h1>
-    <a href="{{ url_for('logout') }}">Logout</a></p>
+    <h1>Welcome, Admin!</h1>
+    <h2>Sections:</h2>
+    <ul>
+        {% for section in sections %}
+            <li><a href="{{ url_for('products_of_section', section_id=section.section_id) }}">{{ section.section_name }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('search_section') }}">Search Sections</a>
+    <a href="{{ url_for('search_products') }}">Search Products</a>
 </body>
 </html>

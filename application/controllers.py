@@ -43,12 +43,17 @@ def user_login():
 def admin_login():
     form = LoginForm()
     if form.validate_on_submit():
-        admin = Users.query.filter_by(user_name=form.username.data, role="user").first()
+        admin = Users.query.filter_by(user_name=form.username.data, role="admin").first()
         if admin:
             if bcrypt.checkpw(form.password.data.encode('utf-8'), admin.password):
                 login_user(admin)
-                return render_template("admin_dashboard.html")
+                return redirect(url_for('admin_dashboard'))
     return render_template('admin_login.html', form=form)
+
+@app.route('/admin_dashboard', methods=['GET', 'POST'])
+def admin_dashboard():
+    sections = Sections.query.all()
+    return render_template('admin_dashboard.html', sections=sections)
 
 @app.route("/logout")
 @login_required

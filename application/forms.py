@@ -8,8 +8,9 @@ class RegisterForm(FlaskForm):
     username = StringField(validators=[
                            InputRequired(), Length(max=200)], render_kw={"placeholder": "Username"})
     
-    role = StringField(validators=[
-                    InputRequired(), Length(max=200)], render_kw={"placeholder": "Role"})
+    role = HiddenField(default="user")
+    # role = StringField(validators=[
+    #                 InputRequired(), Length(max=200)], render_kw={"placeholder": "Role"})
 
     password = PasswordField(validators=[
                              InputRequired(), Length(min=8, max=200)], render_kw={"placeholder": "Password"})
