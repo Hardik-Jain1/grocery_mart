@@ -1,5 +1,5 @@
 from flask import current_app as app
-from flask import render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for, request, flash
 from .database import db
 from flask_bcrypt import  bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
@@ -14,6 +14,62 @@ def load_user(user_id):
 @app.route("/")
 def home():
     return render_template("home.html")
+
+@app.route("/admin_login", methods=["GET", "POST"])
+def admin_login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        admin = Users.query.filter_by(user_name=form.username.data, role="admin").first()
+        if admin:
+            if bcrypt.checkpw(form.password.data.encode('utf-8'), admin.password):
+                login_user(admin)
+                return redirect(url_for('admin_dashboard'))
+    return render_template('admin_login.html', form=form)
+
+@app.route('/admin_dashboard', methods=['GET', 'POST'])
+def admin_dashboard():
+    sections = Sections.query.all()
+    return render_template('admin_dashboard.html', sections=sections)
+
+@app.route('/add_section', methods=['GET', 'POST'])
+def add_section():
+    form = AddSectionForm()
+    if request.method=="POST":
+        section = Sections.query.filter_by(section_name = form.name.data).all()
+        if section:
+            flash('Section already exit','success')
+            return redirect(url_for('add_section'))
+        else:    
+            section = Sections(section_name=form.name.data)
+            if form.no_of_products.data:
+                section.number_of_products = form.no_of_products.data
+            db.session.add(section)
+            db.session.commit()
+            flash('New section added successfully!', 'success')
+            return redirect(url_for('add_section'))
+    return render_template('add_section.html', form=form)
+
+@app.route('/add_product', methods=['GET', 'POST'])
+def add_product():
+    form = AddProductForm()
+    form.section.choices = [(section.id, section.name) for section in Section.query.all()]
+    if form.validate_on_submit():
+        section_id = form.section.data
+        product = Product(
+            name=form.name.data,
+            price=form.price.data,
+            manufacture_date=form.manufacture_date.data,
+            expiry_date=form.expiry_date.data,
+            section_id=section_id
+        )
+        db.session.add(product)
+        db.session.commit()
+        flash('New product added successfully!', 'success')
+        return redirect(url_for('view_section_products', section_id=section_id))
+    return render_template('add_product.html', form=form)
+
+
+
 
 @app.route("/user_register", methods=['GET', 'POST'])
 def user_register():
@@ -39,33 +95,17 @@ def user_login():
                 return redirect(url_for('user_dashboard'))
     return render_template('user_login.html', form=form)
 
-@app.route("/admin_login", methods=["GET", "POST"])
-def admin_login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        admin = Users.query.filter_by(user_name=form.username.data, role="admin").first()
-        if admin:
-            if bcrypt.checkpw(form.password.data.encode('utf-8'), admin.password):
-                login_user(admin)
-                return redirect(url_for('admin_dashboard'))
-    return render_template('admin_login.html', form=form)
-
-@app.route('/admin_dashboard', methods=['GET', 'POST'])
-def admin_dashboard():
+@app.route("/user_dashboard")
+@login_required
+def user_dashboard():
     sections = Sections.query.all()
-    return render_template('admin_dashboard.html', sections=sections)
+    return render_template('user_dashboard.html', sections=sections)
 
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for("home"))
-
-@app.route("/user_dashboard")
-@login_required
-def user_dashboard():
-    sections = Sections.query.all()
-    return render_template('user_dashboard.html', sections=sections)
 
 @app.route("/section/<int:section_id>")
 @login_required

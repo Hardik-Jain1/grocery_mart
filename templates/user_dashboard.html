@@ -8,14 +8,13 @@
     <h3>Available Grocery Categories:</h3>
     <br>
     <a href="{{ url_for('search_section') }}">Search Section</a>
-    <br>
-    <a href="{{ url_for('search_products') }}">Search Products</a>
+    <a href="{{ url_for('search_products') }}">Search Section</a>
     <br>
     <ul>
         {% for section in sections %}
         <li>
             <a href="{{ url_for('products_of_section', section_id=section.section_id) }}">{{ section.section_name }}</a>
-        </li>
+        </li>   
         <br>
         {% endfor %}
     </ul>

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, PasswordField, SubmitField, DateField, HiddenField
+from wtforms import StringField, FloatField, IntegerField, PasswordField, SubmitField, DateField, HiddenField
 from wtforms.validators import InputRequired, Length, ValidationError, DataRequired, NumberRange
 from .models import *
 
@@ -42,3 +42,18 @@ class SearchForm(FlaskForm):
     manufacture_date = DateField("Manufacture Date")
     expiry_date = DateField("Expiry Date")
     submit = SubmitField("Search")
+
+
+class AddSectionForm(FlaskForm):
+    name = StringField('Section Name', validators=[DataRequired()])
+    submit = SubmitField('Add Section')
+    no_of_products = IntegerField('No_of_products', validators=[])
+
+
+class AddProductForm(FlaskForm):
+    name = StringField('Product Name', validators=[DataRequired()])
+    price = FloatField('Price', validators=[DataRequired()])
+    manufacture_date = DateField('Manufacture Date')
+    expiry_date = DateField('Expiry Date')
+    section = StringField('Section', validators=[])
+    submit = SubmitField('Add Product')

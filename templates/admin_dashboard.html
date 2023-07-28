@@ -11,8 +11,7 @@
             <li><a href="{{ url_for('products_of_section', section_id=section.section_id) }}">{{ section.section_name }}</a></li>
         {% endfor %}
     </ul>
-
-    <a href="{{ url_for('search_section') }}">Search Sections</a>
-    <a href="{{ url_for('search_products') }}">Search Products</a>
+    <a href="{{ url_for('add_section') }}">Add Section</a>
+    <br>
 </body>
 </html>

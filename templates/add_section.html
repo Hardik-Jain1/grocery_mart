@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add New Section</title>
+</head>
+<body>
+    <h3>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-message">
+        {{ messages[-1][1] }}
+      </div>
+    {% endif %}
+    {% endwith %}    
+    </h3>
+
+    <h1>Add New Section:</h1>
+    <form method="POST" action="{{ url_for('add_section') }}">
+        {{ form.csrf_token }}
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(class="form-control") }}
+        </p>
+
+        <p>
+            {{ form.no_of_products.label }}<br>
+            {{ form.no_of_products(class="form-control") }}
+        </p>
+
+        <p>
+            {{ form.submit }}
+        </p>
+    </form>
+    <a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+</body>
+</html>
