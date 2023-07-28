@@ -1,0 +1,25 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grocery App - Search Category</title>
+</head>
+<body>
+    <h2>Search Category</h2>
+    <form method="POST" action="{{ url_for('search_section') }}">
+        {{ form.csrf_token }}
+        <p>
+            {{ form.category.label }}<br>
+            {{ form.category(class="form-control") }}
+    </form>
+    <h3>Search Results:</h3>
+        <ul>
+        {% for section in sections %}
+            <li>
+                <a href="{{ url_for('products_of_section', section_id=section.section_id) }}">{{ section.section_name }} (No of products- {{ section.number_of_products }})</a>
+            </li>
+        {% endfor %}
+        </ul>
+    <p><a href="{{ url_for('user_dashboard') }}">Back to Dashboard</a></p>
+</body>
+</html>

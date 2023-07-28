@@ -3,8 +3,8 @@ from flask import Flask, render_template, url_for, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError
+from wtforms import StringField, FloatField, PasswordField, SubmitField, DateField
+from wtforms.validators import InputRequired, Length, ValidationError, DataRequired, NumberRange
 from flask_bcrypt import  bcrypt
 
 
@@ -96,6 +96,14 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 
+class SearchForm(FlaskForm):
+    category = StringField("Category", validators=[])
+    min_price = FloatField("Minimum Price", validators=[NumberRange(min=0, message="Minimum price must be greater than or equal to 0.")])
+    max_price = FloatField("Maximum Price", validators=[NumberRange(min=0, message="Maximum price must be greater than or equal to 0.")])
+    manufacture_date = DateField("Manufacture Date")
+    submit = SubmitField("Search")
+
+
 @app.route("/")
 def home():
     return render_template("home.html")
@@ -129,7 +137,7 @@ def admin_login():
     form = LoginForm()
     if form.validate_on_submit():
         admin = Users.query.filter_by(user_name=form.username.data).first()
-        if user:
+        if admin:
             if bcrypt.checkpw(form.password.data.encode('utf-8'), admin.password):
                 login_user(admin)
                 return redirect(url_for('admin_dashboard'))
@@ -144,17 +152,23 @@ def logout():
 @app.route("/user_dashboard")
 @login_required
 def user_dashboard():
-    products = Products.query.all()
-    return render_template('user_dashboard.html', products=products)
+    sections = Sections.query.all()
+    return render_template('user_dashboard.html', sections=sections)
 
-@app.route("/add_to_cart/<int:item_id>", methods=["POST"])
+@app.route("/section/<int:section_id>")
 @login_required
-def add_to_cart(item_id):
+def products_of_section(section_id):
+    products = Products.query.filter_by(section_id=section_id).all()
+    return render_template('products_of_section.html', products=products)
+
+@app.route("/add_to_cart/<int:section_id>/<int:item_id>", methods=["POST"])
+@login_required
+def add_to_cart(section_id,item_id):
     quantity = int(request.form['quantity'])
     cart_item = CartItem(user_id=current_user.user_id, item_id=item_id, quantity=quantity)
     db.session.add(cart_item)
     db.session.commit()
-    return redirect(url_for('user_dashboard'))
+    return redirect(url_for('products_of_section', section_id=section_id))
 
 @app.route("/view_cart")
 @login_required
@@ -162,6 +176,23 @@ def view_cart():
     cart_items = CartItem.query.filter_by(user_id=current_user.user_id).all()
     return render_template('view_cart.html', cart_items=cart_items)
 
+@app.route("/search_section", methods=["GET", "POST"])
+def search_section():
+    form=SearchForm()
+    if request.method == "POST":
+        category = request.form.get("category")
+        if category:
+            sections = Sections.query.filter_by(section_name=category).all()
+    else:
+        sections = Sections.query.all()
+    return render_template('search_section.html', sections=sections, form=form)
+
+@app.route("/view_cart/<int:cart_id>/delete")
+def delete_cart_item(cart_id):
+  cart_item = CartItem.query.filter_by(cart_id=cart_id).one()
+  db.session.delete(cart_item)
+  db.session.commit()
+  return redirect(url_for('view_cart'))
 
 if __name__ == "__main__":
     app.run(debug=True)

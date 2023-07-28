@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grocery App - Search Products</title>
+</head>
+<body>
+    <h2>Search Products</h2>
+    <form method="POST" action="{{ url_for('search_products') }}">
+        {{ form.csrf_token }}
+        <p>
+            {{ form.category.label }}<br>
+            {{ form.category(class="form-control") }}
+        </p>
+        <p>
+            {{ form.min_price.label }}<br>
+            {{ form.min_price(class="form-control") }}
+        </p>
+        <p>
+            {{ form.max_price.label }}<br>
+            {{ form.max_price(class="form-control") }}
+        </p>
+        <p>
+            {{ form.manufacture_date.label }}<br>
+            {{ form.manufacture_date(class="form-control") }}
+        </p>
+        <p>
+            {{ form.submit }}
+        </p>
+    </form>
+    <h3>Search Results:</h3>
+    <ul>
+        {% for product in products %}
+        <li>
+            {{ product.name }} - ${{ product.price }} (Category: {{ product.category.name }})
+            <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST">
+                <input type="number" name="quantity" value="1" min="1">
+                <button type="submit">Add to Cart</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    <p><a href="{{ url_for('home') }}">Back to Home</a></p>
+</body>
+</html>

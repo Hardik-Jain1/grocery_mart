@@ -5,22 +5,14 @@
 </head>
 <body>
     <h2>Welcome, {{ current_user.user_name }}!</h2>
-    <h3>Available Grocery Items:</h3>
+    <h3>Available Grocery Categories:</h3>
+    <br>
+    <a href="{{ url_for('search_section') }}">Search Section</a>
+    <br>
     <ul>
-        {% for item in products %}
+        {% for section in sections %}
         <li>
-            {{ item.product_name }}
-            <br>
-                 - Manuf-Date: {{ item.manufacture_date }}
-                 <br>
-                 - Exp-Date: {{ item.expiry_date }}
-                 <br>
-                 - Rate-Per-Unit: ${{ item.rate_per_unit }}
-                 <br>
-            <form action="{{ url_for('add_to_cart', item_id=item.product_id) }}" method="POST">
-                <input type="number" name="quantity" value="1" min="1">
-                <button type="submit">Add to Cart</button>
-            </form>
+            <a href="{{ url_for('products_of_section', section_id=section.section_id) }}">{{ section.section_name }}</a>
         </li>
         <br>
         {% endfor %}
