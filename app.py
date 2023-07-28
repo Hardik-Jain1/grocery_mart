@@ -3,9 +3,10 @@ from flask import Flask, render_template, url_for, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, PasswordField, SubmitField, DateField
+from wtforms import StringField, FloatField, PasswordField, SubmitField, DateField, HiddenField
 from wtforms.validators import InputRequired, Length, ValidationError, DataRequired, NumberRange
 from flask_bcrypt import  bcrypt
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -98,9 +99,10 @@ class LoginForm(FlaskForm):
 
 class SearchForm(FlaskForm):
     category = StringField("Category", validators=[])
-    min_price = FloatField("Minimum Price", validators=[NumberRange(min=0, message="Minimum price must be greater than or equal to 0.")])
-    max_price = FloatField("Maximum Price", validators=[NumberRange(min=0, message="Maximum price must be greater than or equal to 0.")])
+    name = StringField("Name", validators=[])
+    price = FloatField("Price", validators=[NumberRange(min=0, message="Price must be greater than or equal to 0.")])
     manufacture_date = DateField("Manufacture Date")
+    expiry_date = DateField("Expiry Date")
     submit = SubmitField("Search")
 
 
@@ -168,7 +170,12 @@ def add_to_cart(section_id,item_id):
     cart_item = CartItem(user_id=current_user.user_id, item_id=item_id, quantity=quantity)
     db.session.add(cart_item)
     db.session.commit()
-    return redirect(url_for('products_of_section', section_id=section_id))
+    if request.form.get('source')=='products_of_section':
+        return redirect(url_for('products_of_section', section_id=section_id))
+    else:
+        form = SearchForm()
+        products = Products.query.all()
+        return redirect(url_for('search_products.html', products=products, form=form))
 
 @app.route("/view_cart")
 @login_required
@@ -186,6 +193,40 @@ def search_section():
     else:
         sections = Sections.query.all()
     return render_template('search_section.html', sections=sections, form=form)
+
+@app.route("/search_product", methods=["GET", "POST"])
+def search_products():
+    form=SearchForm()
+    if request.method == "POST":
+        query_params = {}
+
+        category = request.form.get("category")
+        if category:
+            section = Sections.query.filter_by(section_name=category).one()
+            query_params['section_id'] = section.section_id
+
+        price = request.form.get("price")
+        if price:
+            query_params['rate_per_unit'] = float(price)
+
+        manufacture_date = request.form.get("manufacture_date")
+        if manufacture_date:
+            query_params['manufacture_date'] = manufacture_date
+
+        expiry_date = request.form.get("expiry_date")
+        if expiry_date:
+            query_params['expiry_date'] = expiry_date
+
+        product_name = request.form.get("name")
+        if product_name:
+            query_params['product_name'] = product_name
+
+        products_query = Products.query.filter_by(**query_params)
+        products = products_query.all()
+    else:
+        products = Products.query.all()
+
+    return render_template('search_products.html', products=products, form=form)
 
 @app.route("/view_cart/<int:cart_id>/delete")
 def delete_cart_item(cart_id):
