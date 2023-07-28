@@ -175,13 +175,16 @@ def add_to_cart(section_id,item_id):
     else:
         form = SearchForm()
         products = Products.query.all()
-        return redirect(url_for('search_products.html', products=products, form=form))
+        return redirect(url_for('search_products', products=products, form=form))
 
 @app.route("/view_cart")
 @login_required
 def view_cart():
     cart_items = CartItem.query.filter_by(user_id=current_user.user_id).all()
-    return render_template('view_cart.html', cart_items=cart_items)
+    total = 0
+    for cart_item in cart_items:
+        total += cart_item.item.rate_per_unit*cart_item.quantity
+    return render_template('view_cart.html', cart_items=cart_items, total=total)
 
 @app.route("/search_section", methods=["GET", "POST"])
 def search_section():

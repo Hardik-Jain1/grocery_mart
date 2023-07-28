@@ -19,6 +19,7 @@
                  <br>
             <form action="{{ url_for('add_to_cart', section_id=item.section_id, item_id=item.product_id) }}" method="POST">
                 <input type="number" name="quantity" value="1" min="1">
+                <input type="hidden" name="source" value="products_of_section">
                 <button type="submit">Add to Cart</button>
             </form>
         </li>
