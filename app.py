@@ -8,18 +8,24 @@ from wtforms.validators import InputRequired, Length, ValidationError, DataRequi
 from flask_bcrypt import  bcrypt
 from datetime import datetime
 
+from application.config import LocalDevelopmentConfig
+from application.database import db
 
-app = Flask(__name__)
-current_dir = os.path.abspath(os.path.dirname(__file__))
+#
+app = None
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(
-  current_dir, "database.sqlite3")
-app.config['SECRET_KEY'] = 'thisisasecretkey'
-db = SQLAlchemy()
-db.init_app(app)
-app.app_context().push()
+def create_app():
+    app = Flask(__name__, template_folder="templates")
 
+    print("Staring Local Development")
+    app.config.from_object(LocalDevelopmentConfig)
+    db.init_app(app)
+    app.app_context().push()
+    
+    return app
+
+app = create_app()
+#
 
 login_manager = LoginManager()
 login_manager.init_app(app)
