@@ -14,10 +14,7 @@
     <br>
     - Rate-Per-Unit: {{ product.rate_per_unit }} {{ product.unit }}
     <br>
-<form action="{{ url_for('add_to_cart', section_id=product.section_id, item_id=product.product_id) }}" method="POST">
-   <input type="number" name="quantity" value="1" min="1">
-   <input type="hidden" name="source" value="products_of_section">
-   <button type="submit">Add to Cart</button>
-</form>
+    <br>
+    &nbsp;&nbsp;&nbsp;<a href="{{ url_for('buy', section_id=product.section_id,  product_id=product.product_id ) }}" type="button"><button type="submit">Buy</button></a>
 </body>
 </html>

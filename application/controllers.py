@@ -71,7 +71,7 @@ def add_product():
         return redirect(url_for('view_section_products', section_id=section_id))
     return render_template('add_product.html', form=form)
 
-@app.route("/manage_section/<int:section_id>")
+@app.route("/manage_products/<int:section_id>")
 @login_required
 def manage_products(section_id):
     products = Products.query.filter_by(section_id=section_id).all()
@@ -97,6 +97,8 @@ def delete_section(section_id):
     db.session.commit()
     flash('Section deleted successfully!', 'success')
     return redirect(url_for('admin_dashboard'))
+
+
 
 @app.route("/user_register", methods=['GET', 'POST'])
 def user_register():
@@ -146,6 +148,12 @@ def products_of_section(section_id):
 def product_details(section_id, product_id):
     product = Products.query.filter_by(section_id=section_id, product_id=product_id).one()
     return render_template('product_details.html', product=product)
+
+@app.route("/section/<int:section_id>/<int:product_id>/buy")
+@login_required
+def buy(section_id, product_id):
+    product = Products.query.filter_by(section_id=section_id, product_id=product_id).one()
+    return render_template('buy.html', product=product)
 
 @app.route("/add_to_cart/<int:section_id>/<int:item_id>", methods=["POST"])
 @login_required
