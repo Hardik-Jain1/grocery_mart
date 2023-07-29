@@ -56,4 +56,5 @@ class AddProductForm(FlaskForm):
     manufacture_date = DateField('Manufacture Date')
     expiry_date = DateField('Expiry Date')
     section = StringField('Section', validators=[])
+    unit = StringField('Unit', validators=[])
     submit = SubmitField('Save')

@@ -52,31 +52,32 @@ def add_section():
             return redirect(url_for('add_section'))
     return render_template('add_section.html', form=form)
 
-@app.route('/add_product', methods=['GET', 'POST'])
-def add_product():
+@app.route('/section/<int:section_id>/add_product', methods=['GET', 'POST'])
+def add_product(section_id):
     form = AddProductForm()
-    form.section.choices = [(section.id, section.name) for section in Section.query.all()]
+    # form.section.choices = [(section.id, section.name) for section in Sections.query.all()]
+    section = Sections.query.filter_by(section_id=section_id).one()
     if form.validate_on_submit():
-        section_id = form.section.data
         product = Products(
-            name=form.name.data,
-            price=form.price.data,
+            product_name=form.name.data,
+            rate_per_unit=form.price.data,
             manufacture_date=form.manufacture_date.data,
             expiry_date=form.expiry_date.data,
+            unit=form.unit.data,
             section_id=section_id
         )
         db.session.add(product)
         db.session.commit()
         flash('New product added successfully!', 'success')
-        return redirect(url_for('view_section_products', section_id=section_id))
-    return render_template('add_product.html', form=form)
+        return redirect(url_for('manage_products', section_id=section_id))
+    return render_template('add_product.html', form=form, section_id=section_id)
 
 @app.route("/manage_products/<int:section_id>")
 @login_required
 def manage_products(section_id):
     products = Products.query.filter_by(section_id=section_id).all()
-    section_name = Sections.query.filter_by(section_id=section_id).one().section_name
-    return render_template('manage_products.html', products=products, section_name=section_name)
+    section = Sections.query.filter_by(section_id=section_id).one()
+    return render_template('manage_products.html', products=products, section=section)
 
 @app.route('/edit_section/<int:section_id>', methods=['GET', 'POST'])
 def edit_section(section_id):
@@ -97,6 +98,23 @@ def delete_section(section_id):
     db.session.commit()
     flash('Section deleted successfully!', 'success')
     return redirect(url_for('admin_dashboard'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
