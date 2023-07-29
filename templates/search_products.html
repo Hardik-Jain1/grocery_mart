@@ -37,21 +37,7 @@
         {% for product in products %}
         <li>
             <!-- {{ product.product_name }} - ${{ product.rate_per_unit }} (Category: {{ product.section.section_name }}) -->
-            {{ product.product_name }}
-            <br>
-            - Category: {{ product.section.section_name }}
-            <br>
-            - Manuf-Date: {{ product.manufacture_date }}
-            <br>
-            - Exp-Date: {{ product.expiry_date }}
-            <br>
-            - Rate-Per-Unit: ${{ product.rate_per_unit }}
-            <br>
-            <form action="{{ url_for('add_to_cart', section_id=product.section_id, item_id=product.product_id) }}" method="POST">
-                <input type="number" name="quantity" value="1" min="1">
-                <input type="hidden" name="source" value="search_products">
-                <button type="submit">Add to Cart</button>
-            </form>
+            <a href=" {{ url_for('product_details', section_id=product.section_id, product_id=product.product_id ) }}">{{ product.product_name }}</a>
         </li>
         <br>
         {% endfor %}

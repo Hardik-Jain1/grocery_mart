@@ -25,6 +25,7 @@ class Products(db.Model):
     manufacture_date = db.Column(db.Date)
     expiry_date = db.Column(db.Date)
     rate_per_unit = db.Column(db.Float, nullable=False)
+    unit = db.Column(db.String(200), nullable=False, default='Rs')
     section_id = db.Column(db.Integer, db.ForeignKey('sections.section_id'))
     section = db.relationship('Sections', backref=db.backref('products', lazy=True))
 

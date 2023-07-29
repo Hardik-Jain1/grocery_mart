@@ -31,6 +31,8 @@ def admin_dashboard():
     sections = Sections.query.all()
     return render_template('admin_dashboard.html', sections=sections)
 
+# @app.route()
+
 @app.route('/add_section', methods=['GET', 'POST'])
 def add_section():
     form = AddSectionForm()
@@ -55,7 +57,7 @@ def add_product():
     form.section.choices = [(section.id, section.name) for section in Section.query.all()]
     if form.validate_on_submit():
         section_id = form.section.data
-        product = Product(
+        product = Products(
             name=form.name.data,
             price=form.price.data,
             manufacture_date=form.manufacture_date.data,
@@ -68,6 +70,12 @@ def add_product():
         return redirect(url_for('view_section_products', section_id=section_id))
     return render_template('add_product.html', form=form)
 
+@app.route("/manage/section/<int:section_id>")
+@login_required
+def manage_products(section_id):
+    products = Products.query.filter_by(section_id=section_id).all()
+    section_name = Sections.query.filter_by(section_id=section_id).one().section_name
+    return render_template('manage_products.html', products=products, section_name=section_name)
 
 
 
@@ -111,7 +119,14 @@ def logout():
 @login_required
 def products_of_section(section_id):
     products = Products.query.filter_by(section_id=section_id).all()
-    return render_template('products_of_section.html', products=products)
+    section_name = Sections.query.filter_by(section_id=section_id).one().section_name
+    return render_template('products_of_section.html', products=products, section_name=section_name)
+
+@app.route("/section/<int:section_id>/<int:product_id>")
+@login_required
+def product_details(section_id, product_id):
+    product = Products.query.filter_by(section_id=section_id, product_id=product_id).one()
+    return render_template('product_details.html', product=product)
 
 @app.route("/add_to_cart/<int:section_id>/<int:item_id>", methods=["POST"])
 @login_required

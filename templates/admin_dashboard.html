@@ -8,10 +8,11 @@
     <h2>Sections:</h2>
     <ul>
         {% for section in sections %}
-            <li><a href="{{ url_for('products_of_section', section_id=section.section_id) }}">{{ section.section_name }}</a></li>
+            <li><a href="{{ url_for('manage_products', section_id=section.section_id) }}">{{ section.section_name }}</a></li>
         {% endfor %}
     </ul>
     <a href="{{ url_for('add_section') }}">Add Section</a>
     <br>
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
 </body>
 </html>

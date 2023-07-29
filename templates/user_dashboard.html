@@ -6,10 +6,7 @@
 <body>
     <h2>Welcome, {{ current_user.user_name }}!</h2>
     <h3>Available Grocery Categories:</h3>
-    <br>
-    <a href="{{ url_for('search_section') }}">Search Section</a>
-    <a href="{{ url_for('search_products') }}">Search Section</a>
-    <br>
+
     <ul>
         {% for section in sections %}
         <li>
@@ -18,6 +15,13 @@
         <br>
         {% endfor %}
     </ul>
+
+    <br>
+    <a href="{{ url_for('search_section') }}">Search Section</a>
+    <br>
+    <a href="{{ url_for('search_products') }}">Search Products</a>
+    <br>
+
     <p><a href="{{ url_for('view_cart') }}">View Cart</a></p>
     <p><a href="{{ url_for('logout') }}">Logout</a></p>
 </body>
