@@ -29,7 +29,8 @@ def admin_login():
 @app.route('/admin_dashboard', methods=['GET', 'POST'])
 def admin_dashboard():
     sections = Sections.query.all()
-    return render_template('admin_dashboard.html', sections=sections)
+    form = AddSectionForm()
+    return render_template('admin_dashboard.html', sections=sections, form=form)
 
 # @app.route()
 
@@ -70,14 +71,32 @@ def add_product():
         return redirect(url_for('view_section_products', section_id=section_id))
     return render_template('add_product.html', form=form)
 
-@app.route("/manage/section/<int:section_id>")
+@app.route("/manage_section/<int:section_id>")
 @login_required
 def manage_products(section_id):
     products = Products.query.filter_by(section_id=section_id).all()
     section_name = Sections.query.filter_by(section_id=section_id).one().section_name
     return render_template('manage_products.html', products=products, section_name=section_name)
 
+@app.route('/edit_section/<int:section_id>', methods=['GET', 'POST'])
+def edit_section(section_id):
+    section = Sections.query.get_or_404(section_id)
+    form = AddSectionForm()
+    if request.method=="POST":
+        section.section_name = form.name.data
+        db.session.commit()
+        flash('Section updated successfully!', 'success')
+        return redirect(url_for('admin_dashboard'))
+    form.name.data = section.section_name
+    return render_template('edit_section.html', form=form, section=section)
 
+@app.route('/delete_section/<int:section_id>', methods=['GET','POST'])
+def delete_section(section_id):
+    section = Sections.query.get_or_404(section_id)
+    db.session.delete(section)
+    db.session.commit()
+    flash('Section deleted successfully!', 'success')
+    return redirect(url_for('admin_dashboard'))
 
 @app.route("/user_register", methods=['GET', 'POST'])
 def user_register():

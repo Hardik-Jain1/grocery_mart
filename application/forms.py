@@ -46,8 +46,8 @@ class SearchForm(FlaskForm):
 
 class AddSectionForm(FlaskForm):
     name = StringField('Section Name', validators=[DataRequired()])
-    submit = SubmitField('Add Section')
-    no_of_products = IntegerField('No_of_products', validators=[])
+    submit = SubmitField('Save')
+    no_of_products = IntegerField('No_of_products')
 
 
 class AddProductForm(FlaskForm):
@@ -56,4 +56,4 @@ class AddProductForm(FlaskForm):
     manufacture_date = DateField('Manufacture Date')
     expiry_date = DateField('Expiry Date')
     section = StringField('Section', validators=[])
-    submit = SubmitField('Add Product')
+    submit = SubmitField('Save')
