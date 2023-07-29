@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Product</title>
+</head>
+<body>
+    <h1>Edit Product:</h1>
+    <form method="POST" action="{{ url_for('edit_product', product_id=product.product_id) }}">
+        {{ form.csrf_token }}
+        <p>
+            {{ form.name.label }}           
+            {{ form.name(class="form-control") }}
+        </p>
+        <p>
+            {{ form.price.label }}           
+            {{ form.price(class="form-control") }}
+        </p>
+        <p>
+            {{ form.unit.label }}           
+            {{ form.unit(class="form-control") }}
+        </p>
+        <p>
+            {{ form.manufacture_date.label }}           
+            {{ form.manufacture_date(class="form-control") }}
+        </p>    
+        <p>
+            {{ form.expiry_date.label }}           
+            {{ form.expiry_date(class="form-control") }}
+        </p>  
+        <p>
+            {{ form.section.label }}           
+            {{ form.section(class="form-control") }}
+        </p>  
+        <p>
+            {{ form.submit }}
+        </p> 
+    </form>
+</body>
+</html>

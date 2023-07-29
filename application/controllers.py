@@ -27,6 +27,7 @@ def admin_login():
     return render_template('admin_login.html', form=form)
 
 @app.route('/admin_dashboard', methods=['GET', 'POST'])
+@login_required
 def admin_dashboard():
     sections = Sections.query.all()
     form = AddSectionForm()
@@ -35,6 +36,7 @@ def admin_dashboard():
 # @app.route()
 
 @app.route('/add_section', methods=['GET', 'POST'])
+@login_required
 def add_section():
     form = AddSectionForm()
     if request.method=="POST":
@@ -53,6 +55,7 @@ def add_section():
     return render_template('add_section.html', form=form)
 
 @app.route('/section/<int:section_id>/add_product', methods=['GET', 'POST'])
+@login_required
 def add_product(section_id):
     form = AddProductForm()
     # form.section.choices = [(section.id, section.name) for section in Sections.query.all()]
@@ -72,14 +75,8 @@ def add_product(section_id):
         return redirect(url_for('manage_products', section_id=section_id))
     return render_template('add_product.html', form=form, section_id=section_id)
 
-@app.route("/manage_products/<int:section_id>")
-@login_required
-def manage_products(section_id):
-    products = Products.query.filter_by(section_id=section_id).all()
-    section = Sections.query.filter_by(section_id=section_id).one()
-    return render_template('manage_products.html', products=products, section=section)
-
 @app.route('/edit_section/<int:section_id>', methods=['GET', 'POST'])
+@login_required
 def edit_section(section_id):
     section = Sections.query.get_or_404(section_id)
     form = AddSectionForm()
@@ -92,12 +89,60 @@ def edit_section(section_id):
     return render_template('edit_section.html', form=form, section=section)
 
 @app.route('/delete_section/<int:section_id>', methods=['GET','POST'])
+@login_required
 def delete_section(section_id):
     section = Sections.query.get_or_404(section_id)
     db.session.delete(section)
     db.session.commit()
     flash('Section deleted successfully!', 'success')
     return redirect(url_for('admin_dashboard'))
+
+@app.route("/manage_products/<int:section_id>")
+@login_required
+def manage_products(section_id):
+    products = Products.query.filter_by(section_id=section_id).all()
+    section = Sections.query.filter_by(section_id=section_id).one()
+    return render_template('manage_products.html', products=products, section=section)
+
+@app.route("/manage_product_details/<int:product_id>")
+@login_required
+def manage_product_details(product_id):
+    product = Products.query.filter_by(product_id=product_id).one()
+    return render_template('manage_product_details.html', product=product)
+#
+@app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def edit_product(product_id):
+    product = Products.query.get_or_404(product_id)
+    form = AddProductForm()
+    # form.section.choices = [(section.id, section.name) for section in Sections.query.all()]
+    if form.validate_on_submit():
+        product.product_name = form.name.data
+        product.rate_per_unit = form.price.data
+        product.manufacture_date = form.manufacture_date.data
+        product.expiry_date = form.expiry_date.data
+        product.unit = form.unit.data
+        product.section_id = Sections.query.filter_by(section_name=form.section.data).one().section_id
+        db.session.commit()
+        flash('Product updated successfully!', 'success')
+        return redirect(url_for('manage_product_details', product_id=product_id))
+    form.name.data = product.product_name
+    form.price.data = product.rate_per_unit
+    form.unit.data = product.unit
+    form.manufacture_date.data = product.manufacture_date
+    form.expiry_date.data = product.expiry_date
+    form.section.data = product.section.section_name
+    return render_template('edit_product.html', form=form, product=product)
+
+@app.route('/delete_product/<int:product_id>', methods=['GET','POST'])
+def delete_product(product_id):
+    product = Products.query.get_or_404(product_id)
+    section_id = product.section_id
+    db.session.delete(product)
+    db.session.commit()
+    flash('Product deleted successfully!', 'success')
+    return redirect(url_for('manage_products', section_id=section_id))
+#
 
 
 
@@ -197,6 +242,7 @@ def view_cart():
     return render_template('view_cart.html', cart_items=cart_items, total=total)
 
 @app.route("/search_section", methods=["GET", "POST"])
+@login_required
 def search_section():
     form=SearchForm()
     if request.method == "POST":
@@ -208,6 +254,7 @@ def search_section():
     return render_template('search_section.html', sections=sections, form=form)
 
 @app.route("/search_product", methods=["GET", "POST"])
+@login_required
 def search_products():
     form=SearchForm()
     if request.method == "POST":
@@ -242,6 +289,7 @@ def search_products():
     return render_template('search_products.html', products=products, form=form)
 
 @app.route("/view_cart/<int:cart_id>/delete")
+@login_required
 def delete_cart_item(cart_id):
   cart_item = CartItem.query.filter_by(cart_id=cart_id).one()
   db.session.delete(cart_item)
