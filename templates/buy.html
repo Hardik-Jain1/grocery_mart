@@ -25,5 +25,7 @@
         <input type="hidden" name="source" value="products_of_section">
         <button type="submit">Add to Cart</button>
     </form>
+    <br><br>
+    <a href="{{ url_for('products_of_section', section_id=product.section_id) }}">Back to Products</a>
 </body>
 </html>

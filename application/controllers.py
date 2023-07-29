@@ -51,7 +51,7 @@ def add_section():
             db.session.add(section)
             db.session.commit()
             flash('New section added successfully!', 'success')
-            return redirect(url_for('add_section'))
+            return redirect(url_for('admin_dashboard'))
     return render_template('add_section.html', form=form)
 
 @app.route('/section/<int:section_id>/add_product', methods=['GET', 'POST'])
@@ -109,7 +109,7 @@ def manage_products(section_id):
 def manage_product_details(product_id):
     product = Products.query.filter_by(product_id=product_id).one()
     return render_template('manage_product_details.html', product=product)
-#
+
 @app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 def edit_product(product_id):
@@ -142,7 +142,7 @@ def delete_product(product_id):
     db.session.commit()
     flash('Product deleted successfully!', 'success')
     return redirect(url_for('manage_products', section_id=section_id))
-#
+
 
 
 
