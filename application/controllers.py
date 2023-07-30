@@ -143,7 +143,52 @@ def delete_product(product_id):
     flash('Product deleted successfully!', 'success')
     return redirect(url_for('manage_products', section_id=section_id))
 
+@app.route("/admin_search_section", methods=["GET", "POST"])
+@login_required
+def admin_search_section():
+    form=SearchForm()
+    if request.method == "POST":
+        category = request.form.get("category")
+        if category:
+            sections = Sections.query.filter_by(section_name=category).all()
+    else:
+        sections = Sections.query.all()
+    return render_template('admin_search_section.html', sections=sections, form=form)
 
+@app.route("/admin_search_product", methods=["GET", "POST"])
+@login_required
+def admin_search_product():
+    form=SearchForm()
+    if request.method == "POST":
+        query_params = {}
+
+        product_name = request.form.get("name")
+        if product_name:
+            query_params['product_name'] = product_name
+
+        category = request.form.get("category")
+        if category:
+            section = Sections.query.filter_by(section_name=category).one()
+            query_params['section_id'] = section.section_id
+
+        price = request.form.get("price")
+        if price:
+            query_params['rate_per_unit'] = float(price)
+
+        manufacture_date = request.form.get("manufacture_date")
+        if manufacture_date:
+            query_params['manufacture_date'] = manufacture_date
+
+        expiry_date = request.form.get("expiry_date")
+        if expiry_date:
+            query_params['expiry_date'] = expiry_date
+
+        products_query = Products.query.filter_by(**query_params)
+        products = products_query.all()
+    else:
+        products = Products.query.all()
+
+    return render_template('admin_search_product.html', products=products, form=form)
 
 
 
@@ -255,10 +300,14 @@ def search_section():
 
 @app.route("/search_product", methods=["GET", "POST"])
 @login_required
-def search_products():
+def search_product():
     form=SearchForm()
     if request.method == "POST":
         query_params = {}
+
+        product_name = request.form.get("name")
+        if product_name:
+            query_params['product_name'] = product_name
 
         category = request.form.get("category")
         if category:
@@ -277,16 +326,12 @@ def search_products():
         if expiry_date:
             query_params['expiry_date'] = expiry_date
 
-        product_name = request.form.get("name")
-        if product_name:
-            query_params['product_name'] = product_name
-
         products_query = Products.query.filter_by(**query_params)
         products = products_query.all()
     else:
         products = Products.query.all()
 
-    return render_template('search_products.html', products=products, form=form)
+    return render_template('search_product.html', products=products, form=form)
 
 @app.route("/view_cart/<int:cart_id>/delete")
 @login_required

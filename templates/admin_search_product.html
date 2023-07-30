@@ -6,8 +6,12 @@
 </head>
 <body>
     <h2>Search Products</h2>
-    <form method="POST" action="{{ url_for('search_products') }}">
+    <form method="POST" action="{{ url_for('admin_search_product') }}">
         {{ form.csrf_token }}
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(class="form-control") }}
+        </p>
         <p>
             {{ form.category.label }}<br>
             {{ form.category(class="form-control") }}
@@ -26,25 +30,18 @@
             {{ form.expiry_date(class="form-control") }}
         </p>
         <p>
-            {{ form.name.label }}<br>
-            {{ form.name(class="form-control") }}
-        </p>
-        <p>
             {{ form.submit }}
         </p>
     </form>
     <h3>Search Results:</h3>
     <ul>
-        {% for product in products %}
+        {% for item in products %}
         <li>
-            <!-- {{ product.product_name }} - ${{ product.rate_per_unit }} (Category: {{ product.section.section_name }}) -->
-            <a href=" {{ url_for('product_details', section_id=product.section_id, product_id=product.product_id ) }}">{{ product.product_name }}</a>
+            <a href=" {{ url_for('manage_product_details', product_id=item.product_id ) }}">{{ item.product_name }}</a>
         </li>
-        <br>
         {% endfor %}
     </ul>
-    <p><a href="{{ url_for('view_cart') }}">View Cart</a></p>
-    <a href="{{ url_for('user_dashboard') }}">Back to Dashboard</a>
-    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+
+    <p><a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a></p>
 </body>
 </html>

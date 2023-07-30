@@ -1,34 +1,28 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Dashboard</title>
+    <title>Grocery App - Search Category</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
 </head>
 <body>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="flash-message">
-        {{ messages[-1][1] }}
-    </div>
-    {% endif %}
-    {% endwith %} 
-    <h1>Welcome, Admin!</h1>
-    <h2>Sections:</h2>
-    <ul>
+    <h2>Search Category</h2>
+    <form method="POST" action="{{ url_for('admin_search_section') }}">
+        {{ form.csrf_token }}
+        <p>
+            {{ form.category.label }}<br>
+            {{ form.category(class="form-control") }}
+    </form>
+    <h3>Search Results:</h3>
+        <ul>
         {% for section in sections %}
-            <li><a href="{{ url_for('manage_products', section_id=section.section_id) }}">{{ section.section_name }}</a>
+            <li><a href="{{ url_for('manage_products', section_id=section.section_id) }}">{{ section.section_name }} (No of products- {{ section.number_of_products }})</a>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="{{ url_for('edit_section', section_id=section.section_id) }}" type="button"><button type="submit">Edit</button></a>
             &nbsp; <a href="{{ url_for('delete_section', section_id=section.section_id)}}" type="button"><button type="submit" onclick="return confirm('Are you sure you want to delete this section?')">Delete</button></a>
             </li>
             <br>
         {% endfor %}
-    </ul>
-
-    <p><a href="{{ url_for('admin_search_section') }}">Search Section</a></p>
-    <p><a href="{{ url_for('admin_search_product') }}">Search Product</a></p>
-    <br>
-
-    <p><a href="{{ url_for('add_section') }}">+ Add Section</a></p> 
-    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+        </ul>
+    <p><a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a></p>
 </body>
 </html>
