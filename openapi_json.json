@@ -1,0 +1,659 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Grocery Store API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000/"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  },
+  "paths": {
+    "/api/sections/{section_id}": {
+      "description": "End point to read, update and delete a section resource with section_id = sectionID.",
+      "get": {
+        "description": "Operation to Read section resource.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "section_id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "section object",
+                  "type": "object",
+                  "properties": {
+                    "section_id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "section_naem": {
+                      "type": "string",
+                      "example": "Col Drinks"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Section not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "description": "Operation to update the course resource.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "section_id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "section_name": {
+                    "type": "string",
+                    "example": "Cold Drinks"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfuly updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "section_id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "section_name": {
+                      "type": "string",
+                      "example": "Cold Drinks"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_code": {
+                      "type": "string"
+                    },
+                    "error_message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "section not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "description": "Operation to delete the section resource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "section_id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Deleted"
+          },
+          "404": {
+            "description": "section not found"
+          },
+          "500": {
+            "description": "Intenal Server Error"
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/sections": {
+      "description": "End point to create and display all section resource",
+      "get": {
+        "description": "Operation to get all sections.",
+        "responses": {
+          "200": {
+            "description": "Request Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "section_id": {
+                        "type": "integer",
+                        "example": 1
+                      },
+                      "section_name": {
+                        "type": "string",
+                        "example": "Cold Drinks"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Operation to create the section resource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "section_name": {
+                    "type": "string",
+                    "example": "Cold Drinks"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "section_id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "section_name": {
+                      "type": "string",
+                      "example": "Cold Drinks"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_code": {
+                      "type": "string"
+                    },
+                    "error_message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "section name already exist"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/products/{product_id}": {
+      "description": "Url to read, update and delete the product resource.",
+      "get": {
+        "description": "Operation to read product resource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "product object",
+                  "type": "object",
+                  "properties": {
+                    "product_id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "product_name": {
+                      "type": "string",
+                      "example": "Coco Cola"
+                    },
+                    "rate_per_unit": {
+                      "type": "number",
+                      "format": "float",
+                      "example": 60
+                    },
+                    "unit": {
+                      "type": "string",
+                      "example": "Rs/liter"
+                    },
+                    "manufacture_date": {
+                      "type": "string",
+                      "example": "2023-06-26T00:00:00.000Z"
+                    },
+                    "expiry_date": {
+                      "type": "string",
+                      "example": "2023-06-26T00:00:00.000Z"
+                    },
+                    "section_id": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "product not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "description": "Operation to update the product resource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_name": {
+                    "type": "string",
+                    "example": "Coco Cola"
+                  },
+                  "rate_per_unit": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 60
+                  },
+                  "unit": {
+                    "type": "string",
+                    "example": "Rs/liter"
+                  },
+                  "manufacture_date": {
+                    "type": "string",
+                    "example": "2023-06-26T00:00:00.000Z"
+                  },
+                  "expiry_date": {
+                    "type": "string",
+                    "example": "2023-06-26T00:00:00.000Z"
+                  },
+                  "section_id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "product_id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "product_name": {
+                      "type": "string",
+                      "example": "Coco Cola"
+                    },
+                    "rate_per_unit": {
+                      "type": "number",
+                      "format": "float",
+                      "example": 60
+                    },
+                    "unit": {
+                      "type": "string",
+                      "example": "Rs/liter"
+                    },
+                    "manufacture_date": {
+                      "type": "string",
+                      "example": "2023-06-26T00:00:00.000Z"
+                    },
+                    "expiry_date": {
+                      "type": "string",
+                      "example": "2023-06-26T00:00:00.000Z"
+                    },
+                    "section_id": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_code": {
+                      "type": "string"
+                    },
+                    "error_message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "description": "Operation to delete the product resource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Deleted"
+          },
+          "404": {
+            "description": "Product not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/products": {
+      "description": "Url to create and display  product resource",
+      "get": {
+        "description": "Operation to get all products.",
+        "responses": {
+          "200": {
+            "description": "Request Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "product_id": {
+                        "type": "integer",
+                        "example": 1
+                      },
+                      "product_name": {
+                        "type": "string",
+                        "example": "Coco Cola"
+                      },
+                      "rate_per_unit": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 60
+                      },
+                      "unit": {
+                        "type": "string",
+                        "example": "Rs/liter"
+                      },
+                      "manufacture_date": {
+                        "type": "string",
+                        "example": "2023-06-26T00:00:00.000Z"
+                      },
+                      "expiry_date": {
+                        "type": "string",
+                        "example": "2023-06-26T00:00:00.000Z"
+                      },
+                      "section_id": {
+                        "type": "integer",
+                        "example": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Operation to create the product resource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_name": {
+                    "type": "string",
+                    "example": "Coco Cola"
+                  },
+                  "rate_per_unit": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 60
+                  },
+                  "unit": {
+                    "type": "string",
+                    "example": "Rs/liter"
+                  },
+                  "manufacture_date": {
+                    "type": "string",
+                    "example": "2023-06-26T00:00:00.000Z"
+                  },
+                  "expiry_date": {
+                    "type": "string",
+                    "example": "2023-06-26T00:00:00.000Z"
+                  },
+                  "section_id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "product object",
+                  "type": "object",
+                  "properties": {
+                    "product_id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "product_name": {
+                      "type": "string",
+                      "example": "Coco Cola"
+                    },
+                    "rate_per_unit": {
+                      "type": "number",
+                      "format": "float",
+                      "example": 60
+                    },
+                    "unit": {
+                      "type": "string",
+                      "example": "Rs/liter"
+                    },
+                    "manufacture_date": {
+                      "type": "string",
+                      "example": "2023-06-26T00:00:00.000Z"
+                    },
+                    "expiry_date": {
+                      "type": "string",
+                      "example": "2023-06-26T00:00:00.000Z"
+                    },
+                    "section_id": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_code": {
+                      "type": "string"
+                    },
+                    "error_message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "product already exist"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    }
+  }
+}

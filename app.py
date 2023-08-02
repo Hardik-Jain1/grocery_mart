@@ -7,11 +7,12 @@ from wtforms import StringField, FloatField, PasswordField, SubmitField, DateFie
 from wtforms.validators import InputRequired, Length, ValidationError, DataRequired, NumberRange
 from flask_bcrypt import  bcrypt
 from datetime import datetime
+from flask_restful import Api
 
 from application.config import LocalDevelopmentConfig
 from application.database import db
 
-app = None
+app, api = None, None
 
 def create_app():
     app = Flask(__name__, template_folder="templates")
@@ -20,15 +21,22 @@ def create_app():
     app.config.from_object(LocalDevelopmentConfig)
     db.init_app(app)
     app.app_context().push()
-    
-    return app
 
-app = create_app()
+    api=Api(app)
+    
+    return app, api
+
+app, api = create_app()
 # db.create_all()
 
 
 from application.controllers import *
 
+from application.api import *
+api.add_resource(SectionAPI, "/api/sections")
+api.add_resource(Section_idAPI, "/api/sections/<int:section_id>")
+api.add_resource(ProductAPI, "/api/products")
+api.add_resource(Product_idAPI, "/api/products/<int:product_id>")
 
 if __name__ == "__main__":
     app.run(debug=True)

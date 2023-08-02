@@ -3,3 +3,4 @@ Flask-SQLAlchemy
 Flask-login
 Flask-Bcrypt
 Flask-WTF
+Flask-RESTful

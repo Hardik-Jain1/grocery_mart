@@ -26,13 +26,13 @@ class Products(db.Model):
     expiry_date = db.Column(db.Date)
     rate_per_unit = db.Column(db.Float, nullable=False)
     unit = db.Column(db.String(200), nullable=False, default='Rs')
-    section_id = db.Column(db.Integer, db.ForeignKey('sections.section_id'))
+    section_id = db.Column(db.Integer, db.ForeignKey('sections.section_id', ondelete='CASCADE', onupdate='CASCADE'))
     section = db.relationship('Sections', backref=db.backref('products', lazy=True))
 
 class CartItem(db.Model):
     __tablename__ = "cartitems"
     cart_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    item_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('products.product_id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     item = db.relationship('Products', backref=db.backref('products', lazy=True))
