@@ -10,7 +10,7 @@ from datetime import datetime
 from .models import *
 from .validation import *
 
-#
+
 auth = HTTPBasicAuth()
 
 @auth.verify_password
@@ -21,19 +21,6 @@ def verify_password(username, password):
             return username
 
 
-
-
-# Dummy function to check if the user has valid authentication credentials
-# def requires_auth(f):
-#     def decorated(*args, **kwargs):
-#         auth = request.authorization
-#         if not auth or not authenticate(auth.username, auth.password):
-#             raise Unauthorized()
-#         return f(*args, **kwargs)
-
-#     return decorated
-#
-
 create_section_parser = reqparse.RequestParser()
 create_section_parser.add_argument('section_name')
 
@@ -43,14 +30,11 @@ create_section_field = {
 }
 
 class SectionAPI(Resource):
-    # GET /api/sections
-    # @auth.login_required
     @marshal_with(create_section_field)
     def get(self):
         sections = Sections.query.all()
         return sections, 200
 
-    # POST /api/sections
     @auth.login_required
     @marshal_with(create_section_field)
     def post(self):
@@ -115,6 +99,7 @@ class Section_idAPI(Resource):
         except Exception as e:
             raise InternalServerError(status_code=500)
 
+    @auth.login_required
     def delete(self, section_id):
         try:
             section = Sections.query.filter_by(section_id=section_id).first()
@@ -156,14 +141,11 @@ create_product_field = {
 }
 
 class ProductAPI(Resource):
-    # GET /api/sections
-    # @auth.login_required
     @marshal_with(create_product_field)
     def get(self):
         products = Products.query.all()
         return products, 200
 
-    # POST /api/sections
     @auth.login_required
     @marshal_with(create_product_field)
     def post(self):
@@ -276,15 +258,11 @@ class Product_idAPI(Resource):
         except Exception as e:
             raise InternalServerError(status_code=500)
 
+    @auth.login_required
     def delete(self, product_id):
         try:
             product = Products.query.filter_by(product_id=product_id).first()
             if product:
-                # products = Products.query.filter_by(section_id=section_id).all()
-                # for product in products:
-                #     db.session.delete(product)
-                #     db.session.commit()
-                    # enroll_obj=Enrollment.query.filter_by(course_id=course_obj.course_id).first()
                 db.session.delete(product)
                 db.session.commit()
                 return "Successfully deleted", 200
