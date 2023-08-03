@@ -37,7 +37,6 @@
     <ul>
         {% for product in products %}
         <li>
-            <!-- {{ product.product_name }} - ${{ product.rate_per_unit }} (Category: {{ product.section.section_name }}) -->
             <a href=" {{ url_for('product_details', section_id=product.section_id, product_id=product.product_id ) }}">{{ product.product_name }}</a>
         </li>
         <br>
