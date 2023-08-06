@@ -53,8 +53,9 @@ class AddSectionForm(FlaskForm):
 class AddProductForm(FlaskForm):
     name = StringField('Product Name', validators=[DataRequired()])
     price = FloatField('Price', validators=[DataRequired()])
-    manufacture_date = DateField('Manufacture Date')
-    expiry_date = DateField('Expiry Date')
-    section = StringField('Section', validators=[])
-    unit = StringField('Unit', validators=[])
+    manufacture_date = DateField('Manufacture Date', validators=[DataRequired()])
+    expiry_date = DateField('Expiry Date', validators=[DataRequired()])
+    section = StringField('Section')
+    unit = StringField('Unit', validators=[DataRequired()])
     submit = SubmitField('Save')
+    quantity_available = IntegerField('Quantity Available', validators=[DataRequired()])

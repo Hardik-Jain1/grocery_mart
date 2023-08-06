@@ -42,7 +42,7 @@ def add_section():
     if request.method=="POST":
         section = Sections.query.filter_by(section_name = form.name.data).all()
         if section:
-            flash('Section already exit','success')
+            flash('Section already exit','info')
             return redirect(url_for('add_section'))
         else:    
             section = Sections(section_name=form.name.data)
@@ -58,16 +58,20 @@ def add_section():
 @login_required
 def add_product(section_id):
     form = AddProductForm()
-    # form.section.choices = [(section.id, section.name) for section in Sections.query.all()]
     section = Sections.query.filter_by(section_id=section_id).one()
     if form.validate_on_submit():
+        product = Products.query.filter_by(product_name = form.name.data).first()
+        if product:
+            flash('Product already exit!','info')
+            return redirect(url_for('add_product', section_id=section_id))
         product = Products(
             product_name=form.name.data,
             rate_per_unit=form.price.data,
             manufacture_date=form.manufacture_date.data,
             expiry_date=form.expiry_date.data,
             unit=form.unit.data,
-            section_id=section_id
+            section_id=section_id,
+            quantity_available = form.quantity_available.data
         )
         db.session.add(product)
         db.session.commit()
@@ -270,6 +274,10 @@ def add_to_cart(section_id,item_id):
     cart_item = CartItem(user_id=current_user.user_id, item_id=item_id, quantity=quantity)
     db.session.add(cart_item)
     db.session.commit()
+
+    product = Products.query.filter_by(product_id=item_id).first()
+    product.quantity_available -= quantity
+    db.session.commit()
     if request.form.get('source')=='products_of_section':
         return redirect(url_for('products_of_section', section_id=section_id))
     else:
@@ -337,6 +345,12 @@ def search_product():
 @login_required
 def delete_cart_item(cart_id):
   cart_item = CartItem.query.filter_by(cart_id=cart_id).one()
+  quantity = cart_item.quantity
+
+  product = Products.query.filter_by(product_id=cart_item.item_id).first()
+  product.quantity_available += quantity
+  
   db.session.delete(cart_item)
   db.session.commit()
+
   return redirect(url_for('view_cart'))
