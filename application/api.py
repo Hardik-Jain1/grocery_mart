@@ -15,7 +15,7 @@ auth = HTTPBasicAuth()
 
 @auth.verify_password
 def verify_password(username, password):
-    user = Users.query.filter_by(user_name=username).first()
+    user = Users.query.filter_by(user_name=username, role="admin").first()
     if user:
         if bcrypt.checkpw(password.encode('utf-8'), user.password):
             return username
@@ -275,6 +275,26 @@ class Product_idAPI(Resource):
         
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 create_cartitem_parser = reqparse.RequestParser()
 create_cartitem_parser.add_argument('user_id')
 create_cartitem_parser.add_argument('item_id')
@@ -290,7 +310,7 @@ create_cartitem_field = {
 
 class CartItemAPI(Resource):
 
-    @auth.login_required
+    # @auth.login_required
     @marshal_with(create_cartitem_field)
     def post(self):
         try:
@@ -348,7 +368,7 @@ class CartItem_idAPI(Resource):
             except Exception as e:
                 raise InternalServerError(status_code=500)
 
-    @auth.login_required
+    # @auth.login_required
     @marshal_with(create_cartitem_field)          
     def put(self, user_id):
         try:
@@ -378,7 +398,7 @@ class CartItem_idAPI(Resource):
         except Exception as e:
             raise InternalServerError(status_code=500)
 
-    @auth.login_required
+    # @auth.login_required
     def delete(self, user_id, item_id):
         try:
             cartitem = CartItem.query.filter_by(user_id=user_id, item_id=item_id).first()
