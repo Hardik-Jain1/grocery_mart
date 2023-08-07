@@ -272,3 +272,127 @@ class Product_idAPI(Resource):
             raise nfe
         except Exception as e:
             raise InternalServerError(status_code=500)
+        
+
+
+create_cartitem_parser = reqparse.RequestParser()
+create_cartitem_parser.add_argument('user_id')
+create_cartitem_parser.add_argument('item_id')
+create_cartitem_parser.add_argument('quantity')
+
+
+create_cartitem_field = {
+    'cart_id':   fields.Integer,
+    'user_id':    fields.Integer,
+    'item_id':    fields.Integer,
+    'quantity':    fields.Integer,
+}
+
+class CartItemAPI(Resource):
+
+    @auth.login_required
+    @marshal_with(create_cartitem_field)
+    def post(self):
+        try:
+            args = create_cartitem_parser.parse_args()
+            user_id = args.get("user_id", None)
+            item_id = args.get("item_id", None)
+            quantity = args.get("quantity", None)
+
+            if user_id is None:
+                raise BusinessValidationError(status_code=400, error_code="BE3001", error_message="User id is required")
+
+            if item_id is None:
+                raise BusinessValidationError(status_code=400, error_code="BE3002", error_message="Item id is required")
+            
+            if quantity is None:
+                raise BusinessValidationError(status_code=400, error_code="BE3003", error_message="Quantity is required")
+
+            cartitem = db.session.query(CartItem).filter(CartItem.item_id == item_id).first()
+            if cartitem:
+                raise BusinessValidationError(status_code=409, error_code="BE3004", error_message="Cart Item already exist")  
+
+            product = Products.query.filter_by(product_id=item_id).first()
+            if not product:
+                raise BusinessValidationError(status_code=400, error_code="BE3005", error_message="No item with such item id")
+            else:
+                if quantity>product.quantity_available:
+                    raise BusinessValidationError(status_code=400, error_code="BE3006", error_message=f"Quantity should be less than {product.quantity_available}")
+                else:
+                    new_cartitem = CartItem(user_id=user_id, item_id=item_id, quantity=quantity)
+                    db.session.add(new_cartitem)
+                    db.session.commit()
+
+                    product.quantity_available -= quantity
+                    db.session.commit()
+
+                    return new_cartitem
+        
+        except BusinessValidationError as bve:
+            raise bve
+        except Exception as e:
+            raise InternalServerError(status_code=500)
+
+
+class CartItem_idAPI(Resource):
+    @marshal_with(create_cartitem_field)
+    def get(self, user_id):
+            try:
+                cartitem = CartItem.query.filter_by(user_id=user_id).all()
+                if cartitem:
+                    return  cartitem                    
+                else:
+                    raise NotFoundError(status_code=404)
+            except NotFoundError as nfe:
+                raise nfe
+            except Exception as e:
+                raise InternalServerError(status_code=500)
+
+    @auth.login_required
+    @marshal_with(create_cartitem_field)          
+    def put(self, user_id):
+        try:
+            args = create_cartitem_parser.parse_args()
+
+            item_id = args.get("item_id", None)
+            quantity = args.get("quantity", None)
+
+            if item_id is None:
+                raise BusinessValidationError(status_code=400, error_code="BE2005", error_message="Item id required")
+            if quantity is None:
+                raise BusinessValidationError(status_code=400, error_code="BE2003", error_message="Quantity is required")
+         
+            cartitem = CartItem.query.filter_by(user_id=user_id, item_id=item_id).first()
+            if not cartitem:
+                    raise NotExistsError(status_code=404)            
+            else:
+                cartitem.quantity = quantity
+                db.session.commit()
+                cartitem = CartItem.query.filter_by(user_id=user_id, item_id=item_id).first()
+                return cartitem, 201
+
+        except BusinessValidationError as bve:
+            raise bve
+        except NotFoundError as nfe:
+            raise nfe
+        except Exception as e:
+            raise InternalServerError(status_code=500)
+
+    @auth.login_required
+    def delete(self, user_id, item_id):
+        try:
+            cartitem = CartItem.query.filter_by(user_id=user_id, item_id=item_id).first()
+            if cartitem:
+                product = Products.query.filter_by(product_id=item_id).first()
+                product.quantity_available += cartitem.quantity
+                db.session.commit()
+                
+                db.session.delete(cartitem)
+                db.session.commit()
+                return "Successfully deleted", 200
+            else:
+                raise NotFoundError(status_code=404)
+        except NotFoundError as nfe:
+            raise nfe
+        except Exception as e:
+            raise InternalServerError(status_code=500)

@@ -59,22 +59,45 @@ def add_section():
 def add_product(section_id):
     form = AddProductForm()
     section = Sections.query.filter_by(section_id=section_id).one()
-    if form.validate_on_submit():
+    if request.method=="POST":
+    # if form.validate_on_submit():
         product = Products.query.filter_by(product_name = form.name.data).first()
         if product:
             flash('Product already exit!','info')
             return redirect(url_for('add_product', section_id=section_id))
-        product = Products(
-            product_name=form.name.data,
-            rate_per_unit=form.price.data,
-            manufacture_date=form.manufacture_date.data,
-            expiry_date=form.expiry_date.data,
-            unit=form.unit.data,
-            section_id=section_id,
-            quantity_available = form.quantity_available.data
-        )
+        
+        query_params = {}
+
+        product_name = form.name.data
+        if product_name:
+            query_params['product_name'] = product_name
+
+        rate_per_unit = form.price.data
+        if rate_per_unit:
+            query_params['rate_per_unit'] = rate_per_unit
+
+        manufacture_date = form.manufacture_date.data
+        if manufacture_date:
+            query_params['manufacture_date'] = manufacture_date
+
+        expiry_date = form.expiry_date.data
+        if expiry_date:
+            query_params['expiry_date'] = expiry_date
+        
+        unit = form.unit.data
+        if unit:
+            query_params['unit'] = unit
+        
+        quantity_available = form.quantity_available.data
+        if quantity_available:
+            query_params['quantity_available'] = quantity_available
+
+        query_params["section_id"] = section_id
+        product = Products(**query_params)
+
         db.session.add(product)
         db.session.commit()
+
         flash('New product added successfully!', 'success')
         return redirect(url_for('manage_products', section_id=section_id))
     return render_template('add_product.html', form=form, section_id=section_id)

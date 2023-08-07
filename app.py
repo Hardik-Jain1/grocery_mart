@@ -37,6 +37,8 @@ api.add_resource(SectionAPI, "/api/sections")
 api.add_resource(Section_idAPI, "/api/sections/<int:section_id>")
 api.add_resource(ProductAPI, "/api/products")
 api.add_resource(Product_idAPI, "/api/products/<int:product_id>")
+api.add_resource(CartItemAPI, "/api/cartitems")
+api.add_resource(CartItem_idAPI, "/api/cartitems/<int:user_id>", "/api/cartitems/<int:user_id>/<int:item_id>")
 
 if __name__ == "__main__":
     app.run(debug=True)
