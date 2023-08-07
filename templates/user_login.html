@@ -20,6 +20,19 @@
 
     {% include 'banner.html' %}
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mt-5">
+        <div class="alert alert-primary alert-dismissible fade show" role="alert" id="flash-message">
+            {{ messages[-1][1] }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+    
     <div class="container mt-5">
         <h1>User Login Page</h1>
         <form action="" method="POST">
@@ -40,6 +53,13 @@
         <br>
         <a href="{{url_for('home')}}" class="" style="text-align: left;">Home</a>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector("#flash-message .close").addEventListener("click", function() {
+                document.querySelector("#flash-message").remove();
+            });
+        });
+    </script>
 
 </body>
 </html>

@@ -25,6 +25,12 @@ def admin_login():
             if bcrypt.checkpw(form.password.data.encode('utf-8'), admin.password):
                 login_user(admin)
                 return redirect(url_for('admin_dashboard'))
+            else: 
+                flash("Wrong Credentials", "warning")
+                return redirect(url_for('admin_login'))
+        else:
+            flash("Wrong Credentials", "warning")
+            return redirect(url_for('admin_login'))
     return render_template('admin_login.html', form=form)
 
 @app.route('/admin_dashboard', methods=['GET', 'POST'])
@@ -264,9 +270,15 @@ def user_login():
             if bcrypt.checkpw(form.password.data.encode('utf-8'), user.password):
                 login_user(user)
                 return redirect(url_for('user_dashboard'))
+            else: 
+                flash("Wrong Credentials", "warning")
+                return redirect(url_for('user_login'))
+        else:
+            flash("Wrong Credentials", "warning")
+            return redirect(url_for('user_login'))
     return render_template('user_login.html', form=form)
 
-@app.route("/user_dashboard")
+@app.route("/user_dashboard/")
 @login_required
 def user_dashboard():
     sections = Sections.query.all()
