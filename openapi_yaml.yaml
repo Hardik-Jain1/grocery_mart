@@ -457,3 +457,189 @@ paths:
       security:
         - basicAuth: []
  
+
+  /api/cartitems/{user_id}:
+    description: Url to read, update the cartitem resource.
+    get:
+      description: Operation to read cartitem resource
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                title: product object
+                type: object
+                properties:
+                  cart_id:
+                    type: integer
+                    example: 1
+                  user_id:
+                    type: integer
+                    example: 2
+                  item_id:
+                    type: integer
+                    example: 3
+                  quanitity:
+                    type: integer
+                    example: 10
+        '500':
+          description: Internal server error
+        '404':
+          description: cartitems  not found
+
+    put:
+      description: Operation to update the cartitem resource
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item_id:
+                  type: integer
+                  example: 1
+                quantity:
+                  type: integer
+                  example: 2
+
+      responses:
+        '200':
+          description: Successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cart_id:
+                    type: integer
+                    example: 1
+                  user_id:
+                    type: integer
+                    example: 2
+                  item_id:
+                    type: integer
+                    example: 3
+                  quantity:
+                    type: integer
+                    example: 10
+
+        '404':
+          description: Cartitem not found
+        '500':
+          description: Internal Server Error
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+      security:
+        - basicAuth: []
+        
+        
+  /api/cartitems/{user_id}/{item_id}:
+    description: Url to delete the cartitem resource.              
+    delete:
+      description: Operation to delete the cartitem resource
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - in: path
+          name: item_id
+          required: true
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '200':
+          description: Successfully Deleted
+        '500':
+          description: Internal Server Error
+        '404':
+          description: Cartitem not found
+      security:
+        - basicAuth: []
+ 
+
+  /api/cartitems:
+    description: Url to create  cartitem resource
+    post:
+      description: Operation to create the cartitem resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  example: 1
+                item_id:
+                  type: integer
+                  example: 1
+                quantity:
+                  type: integer
+                  example: 10
+                
+      responses:
+        '201':
+          description: Successfully Created
+          content:
+            application/json:
+              schema:
+                title: cartitem object
+                type: object
+                properties:
+                  cart_id:
+                    type: integer
+                    example: 1
+                  user_id:
+                    type: integer
+                    example: 2
+                  item_id:
+                    type: integer
+                    example: 3
+                  quantity:
+                    type: integer
+                    example: 10
+        '409':
+          description: cartitem already exist
+        '500':
+          description: Internal Server Error
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+      security:
+        - basicAuth: []
