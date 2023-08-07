@@ -793,12 +793,7 @@
           "500": {
             "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "basicAuth": []
-          }
-        ]
+        }
       }
     },
     "/api/cartitems/{user_id}/{item_id}": {
@@ -835,12 +830,7 @@
           "500": {
             "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "basicAuth": []
-          }
-        ]
+        }
       }
     },
     "/api/cartitems": {
@@ -924,12 +914,7 @@
           "500": {
             "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "basicAuth": []
-          }
-        ]
+        }
       }
     }
   }

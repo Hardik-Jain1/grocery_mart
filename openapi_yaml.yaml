@@ -553,8 +553,6 @@ paths:
                     type: string
                   error_message:
                     type: string
-      security:
-        - basicAuth: []
         
         
   /api/cartitems/{user_id}/{item_id}:
@@ -581,8 +579,6 @@ paths:
           description: Internal Server Error
         '404':
           description: Cartitem not found
-      security:
-        - basicAuth: []
  
 
   /api/cartitems:
@@ -641,5 +637,3 @@ paths:
                     type: string
                   error_message:
                     type: string
-      security:
-        - basicAuth: []
