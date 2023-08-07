@@ -6,6 +6,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from .models import *
 from .forms import *
 from .login_manager import login_manager
+from flask_restful import reqparse
  
 @login_manager.user_loader
 def load_user(user_id):
@@ -143,7 +144,8 @@ def edit_product(product_id):
     product = Products.query.get_or_404(product_id)
     form = AddProductForm()
     # form.section.choices = [(section.id, section.name) for section in Sections.query.all()]
-    if form.validate_on_submit():
+    # if form.validate_on_submit():
+    if request.method=="POST":
         product.product_name = form.name.data
         product.rate_per_unit = form.price.data
         product.manufacture_date = form.manufacture_date.data
@@ -165,6 +167,11 @@ def edit_product(product_id):
 def delete_product(product_id):
     product = Products.query.get_or_404(product_id)
     section_id = product.section_id
+    cartitems = CartItem.query.filter_by(item_id=product_id).all()
+    for cartitem in cartitems:
+        db.session.delete(cartitem) 
+    db.session.commit()
+
     db.session.delete(product)
     db.session.commit()
     flash('Product deleted successfully!', 'success')
@@ -317,6 +324,12 @@ def view_cart():
         total += cart_item.item.rate_per_unit*cart_item.quantity
     return render_template('view_cart.html', cart_items=cart_items, total=total)
 
+@app.route("/checkout")
+@login_required
+def checkout():
+    flash('Order is placed','info')
+    return redirect(url_for('view_cart'))
+
 @app.route("/search_section", methods=["GET", "POST"])
 @login_required
 def search_section():
@@ -377,3 +390,7 @@ def delete_cart_item(cart_id):
   db.session.commit()
 
   return redirect(url_for('view_cart'))
+
+@app.route('/profile')
+def profile():
+    return render_template('profile.html', user=current_user)   
