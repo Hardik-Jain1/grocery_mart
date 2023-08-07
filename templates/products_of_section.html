@@ -7,7 +7,7 @@
 </head>
 <body>
     {% include 'header.html' %}
-    {% include 'banner.html' %}
+    {% include 'banner.html' %}    
 
     <div class="container mt-5">
         <h2>{{ section_name }}</h2>
@@ -20,6 +20,7 @@
             </li>
             {% endfor %}
         </ul>
+        
         <a href="{{ url_for('view_cart') }}" class="btn btn-primary btn-block">View Cart</a>
         <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary btn-block">Back to Dashboard</a>
     </div>
