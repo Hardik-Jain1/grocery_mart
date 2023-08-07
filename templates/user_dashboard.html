@@ -1,33 +1,3 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-    <title>User Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-</head>
-<body>
-    <h2>Welcome, {{ current_user.user_name }}!</h2>
-    <h3>Available Grocery Categories:</h3>
-
-    <ul>
-        {% for section in sections %}
-        <li>
-            <a href="{{ url_for('products_of_section', section_id=section.section_id) }}">{{ section.section_name }}</a>
-        </li>   
-        {% endfor %}
-    </ul>
-
-    <br>
-    <a href="{{ url_for('search_section') }}">Search Section</a>
-    <br>
-    <a href="{{ url_for('search_product') }}">Search Products</a>
-    <br>
-
-    <p><a href="{{ url_for('view_cart') }}">View Cart</a></p>
-    <p><a href="{{ url_for('logout') }}">Logout</a></p>
-</body>
-</html> -->
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -37,6 +7,7 @@
 </head>
 <body>
     {% include 'header.html' %}
+    {% include 'banner.html' %}
 
     <div class="container mt-5">
         <h2>Welcome, {{ current_user.user_name }}!</h2>
