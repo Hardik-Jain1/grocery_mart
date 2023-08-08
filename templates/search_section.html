@@ -25,7 +25,7 @@
         <ul class="list-group">
             {% for section in sections %}
             <li class="list-group-item">
-                <a href="{{ url_for('products_of_section', section_id=section.section_id) }}">{{ section.section_name }} (No of products - {{ section.number_of_products }})</a>
+                <a href="{{ url_for('products_of_section', section_id=section.section_id) }}">{{ section.section_name }}</a>
             </li>
             {% endfor %}
         </ul>

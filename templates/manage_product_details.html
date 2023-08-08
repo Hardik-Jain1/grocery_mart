@@ -28,6 +28,7 @@
         <p>- Manuf-Date: {{ product.manufacture_date }}</p>
         <p>- Exp-Date: {{ product.expiry_date }}</p>
         <p>- Rate-Per-Unit: {{ product.rate_per_unit }} {{ product.unit }}</p>
+        <p>- Available_quantity: {{ product.quantity_available }}</p>
 
         <div class="action-buttons">
             <a href="{{ url_for('edit_product', product_id=product.product_id) }}" class="btn btn-primary">Edit</a>

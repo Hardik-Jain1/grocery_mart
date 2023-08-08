@@ -53,8 +53,6 @@ def add_section():
             return redirect(url_for('add_section'))
         else:    
             section = Sections(section_name=form.name.data)
-            if form.no_of_products.data:
-                section.number_of_products = form.no_of_products.data
             db.session.add(section)
             db.session.commit()
             flash('New section added successfully!', 'success')
@@ -128,6 +126,11 @@ def delete_section(section_id):
     section = Sections.query.get_or_404(section_id)
     db.session.delete(section)
     db.session.commit()
+
+    products = Products.query.filter_by(section_id=None).all()
+    for product in products:
+        db.session.delete(product)
+    db.session.commit()
     flash('Section deleted successfully!', 'success')
     return redirect(url_for('admin_dashboard'))
 
@@ -190,7 +193,9 @@ def admin_search_section():
     if request.method == "POST":
         category = request.form.get("category")
         if category:
-            sections = Sections.query.filter_by(section_name=category).all()
+            sections = Sections.query.filter(Sections.section_name.ilike(f'%{category}%')).all()
+        else:
+            sections = Sections.query.all()
     else:
         sections = Sections.query.all()
     return render_template('admin_search_section.html', sections=sections, form=form)
@@ -314,9 +319,14 @@ def buy(section_id, product_id):
 def add_to_cart(section_id,item_id):
     try:
         quantity = int(request.form['quantity'])
-        cart_item = CartItem(user_id=current_user.user_id, item_id=item_id, quantity=quantity)
-        db.session.add(cart_item)
-        db.session.commit()
+        already_cartitem = CartItem.query.filter_by(user_id=current_user.user_id, item_id=item_id).first()
+        if already_cartitem:
+            already_cartitem.quantity += quantity
+            db.session.commit()
+        else:
+            cart_item = CartItem(user_id=current_user.user_id, item_id=item_id, quantity=quantity)
+            db.session.add(cart_item)
+            db.session.commit()
 
         product = Products.query.filter_by(product_id=item_id).first()
         product.quantity_available -= quantity
@@ -345,6 +355,13 @@ def view_cart():
 @app.route("/checkout")
 @login_required
 def checkout():
+    cart_items = CartItem.query.filter_by(user_id=current_user.user_id).all()
+    if cart_items==[]:
+        flash('No item in cart','info')
+        return redirect(url_for('view_cart'))
+    for cart_item in cart_items:
+        db.session.delete(cart_item)
+    db.session.commit()
     flash('Order is placed','info')
     return redirect(url_for('view_cart'))
 
@@ -355,7 +372,9 @@ def search_section():
     if request.method == "POST":
         category = request.form.get("category")
         if category:
-            sections = Sections.query.filter_by(section_name=category).all()
+            sections = Sections.query.filter(Sections.section_name.ilike(f'%{category}%')).all()
+        else:
+            sections = Sections.query.all()
     else:
         sections = Sections.query.all()
     return render_template('search_section.html', sections=sections, form=form)

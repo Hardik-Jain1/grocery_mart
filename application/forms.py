@@ -47,7 +47,6 @@ class SearchForm(FlaskForm):
 class AddSectionForm(FlaskForm):
     name = StringField('Section Name', validators=[DataRequired()])
     submit = SubmitField('Save')
-    no_of_products = IntegerField('No_of_products')
 
 
 class AddProductForm(FlaskForm):
