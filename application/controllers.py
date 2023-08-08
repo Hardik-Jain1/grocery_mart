@@ -312,20 +312,26 @@ def buy(section_id, product_id):
 @app.route("/add_to_cart/<int:section_id>/<int:item_id>", methods=["POST"])
 @login_required
 def add_to_cart(section_id,item_id):
-    quantity = int(request.form['quantity'])
-    cart_item = CartItem(user_id=current_user.user_id, item_id=item_id, quantity=quantity)
-    db.session.add(cart_item)
-    db.session.commit()
+    try:
+        quantity = int(request.form['quantity'])
+        cart_item = CartItem(user_id=current_user.user_id, item_id=item_id, quantity=quantity)
+        db.session.add(cart_item)
+        db.session.commit()
 
-    product = Products.query.filter_by(product_id=item_id).first()
-    product.quantity_available -= quantity
-    db.session.commit()
-    if request.form.get('source')=='products_of_section':
-        return redirect(url_for('products_of_section', section_id=section_id))
-    else:
-        form = SearchForm()
-        products = Products.query.all()
-        return redirect(url_for('search_products', products=products, form=form))
+        product = Products.query.filter_by(product_id=item_id).first()
+        product.quantity_available -= quantity
+        db.session.commit()
+        if request.form.get('source')=='products_of_section':
+            flash("Added to Cart", 'success')
+            return redirect(url_for('products_of_section', section_id=section_id))
+        else:
+            form = SearchForm()
+            products = Products.query.all()
+            flash("Added to Cart", 'success')
+            return redirect(url_for('search_products', products=products, form=form))
+    except:
+        flash("Please try again ", 'info')
+        return redirect(url_for('buy', section_id=section_id, product_id=item_id))
 
 @app.route("/view_cart")
 @login_required

@@ -9,6 +9,19 @@
     {% include 'header.html' %}
     {% include 'banner.html' %}    
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mt-5">
+        <div class="alert alert-primary alert-dismissible fade show" role="alert" id="flash-message">
+            {{ messages[-1][1] }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
     <div class="container mt-5">
         <h2>{{ section_name }}</h2>
         <h3>Available Grocery Items:</h3>
@@ -24,5 +37,12 @@
         <a href="{{ url_for('view_cart') }}" class="btn btn-primary btn-block">View Cart</a>
         <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary btn-block">Back to Dashboard</a>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector("#flash-message .close").addEventListener("click", function() {
+                document.querySelector("#flash-message").remove();
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,7 +1,6 @@
 from .database import db
 from flask_login import UserMixin
 
-
 class Users(UserMixin, db.Model):
     __tablename__ = "users"
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -28,7 +27,8 @@ class Products(db.Model):
     unit = db.Column(db.String(200), nullable=False, default='Rs')
     section_id = db.Column(db.Integer, db.ForeignKey('sections.section_id', onupdate='CASCADE'))
     section = db.relationship('Sections', backref=db.backref('products', lazy=True))
-    quantity_available = db.Column(db.Integer, nullable=False)
+    quantity_available = db.Column(db.Integer, db.CheckConstraint('quantity_available >= 0', name='check_min_quantity') , nullable=False)
+
 
 class CartItem(db.Model):
     __tablename__ = "cartitems"
