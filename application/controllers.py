@@ -138,6 +138,7 @@ def delete_section(section_id):
 @login_required
 def manage_products(section_id):
     products = Products.query.filter_by(section_id=section_id).all()
+    products.reverse()
     section = Sections.query.filter_by(section_id=section_id).one()
     return render_template('manage_products.html', products=products, section=section)
 
@@ -298,6 +299,7 @@ def logout():
 @login_required
 def products_of_section(section_id):
     products = Products.query.filter_by(section_id=section_id).all()
+    products.reverse()
     section_name = Sections.query.filter_by(section_id=section_id).one().section_name
     return render_template('products_of_section.html', products=products, section_name=section_name)
 
