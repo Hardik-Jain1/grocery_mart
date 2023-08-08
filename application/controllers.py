@@ -205,30 +205,29 @@ def admin_search_section():
 def admin_search_product():
     form=SearchForm()
     if request.method == "POST":
-        query_params = {}
+        query_params = []
 
         product_name = request.form.get("name")
         if product_name:
-            query_params['product_name'] = product_name
+            query_params.append(Products.product_name.ilike(f"%{product_name}%"))
 
         category = request.form.get("category")
         if category:
-            section = Sections.query.filter_by(section_name=category).one()
-            query_params['section_id'] = section.section_id
+            query_params.append(Products.section.has(Sections.section_name.ilike(f"%{category}%")))
 
         price = request.form.get("price")
         if price:
-            query_params['rate_per_unit'] = float(price)
+            query_params.append(Products.rate_per_unit.ilike(f"%{price}%"))
 
         manufacture_date = request.form.get("manufacture_date")
         if manufacture_date:
-            query_params['manufacture_date'] = manufacture_date
+            query_params.append(Products.manufacture_date.ilike(f"%{manufacture_date}%"))
 
         expiry_date = request.form.get("expiry_date")
         if expiry_date:
-            query_params['expiry_date'] = expiry_date
+           query_params.append(Products.expiry_date.ilike(f"%{expiry_date}%"))
 
-        products_query = Products.query.filter_by(**query_params)
+        products_query = Products.query.filter(*query_params)
         products = products_query.all()
     else:
         products = Products.query.all()
@@ -384,33 +383,33 @@ def search_section():
 def search_product():
     form=SearchForm()
     if request.method == "POST":
-        query_params = {}
+        query_params = []
 
         product_name = request.form.get("name")
         if product_name:
-            query_params['product_name'] = product_name
+            query_params.append(Products.product_name.ilike(f"%{product_name}%"))
 
         category = request.form.get("category")
         if category:
-            section = Sections.query.filter_by(section_name=category).one()
-            query_params['section_id'] = section.section_id
+            query_params.append(Products.section.has(Sections.section_name.ilike(f"%{category}%")))
 
         price = request.form.get("price")
         if price:
-            query_params['rate_per_unit'] = float(price)
+            query_params.append(Products.rate_per_unit.ilike(f"%{price}%"))
 
         manufacture_date = request.form.get("manufacture_date")
         if manufacture_date:
-            query_params['manufacture_date'] = manufacture_date
+            query_params.append(Products.manufacture_date.ilike(f"%{manufacture_date}%"))
 
         expiry_date = request.form.get("expiry_date")
         if expiry_date:
-            query_params['expiry_date'] = expiry_date
+           query_params.append(Products.expiry_date.ilike(f"%{expiry_date}%"))
 
-        products_query = Products.query.filter_by(**query_params)
+        products_query = Products.query.filter(*query_params)
         products = products_query.all()
     else:
         products = Products.query.all()
+
 
     return render_template('search_product.html', products=products, form=form)
 
