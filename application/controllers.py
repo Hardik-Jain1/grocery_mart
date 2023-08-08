@@ -230,8 +230,10 @@ def admin_search_product():
 
         products_query = Products.query.filter(*query_params)
         products = products_query.all()
+        products.reverse()
     else:
         products = Products.query.all()
+        products.reverse()
 
     return render_template('admin_search_product.html', products=products, form=form)
 
@@ -409,9 +411,10 @@ def search_product():
 
         products_query = Products.query.filter(*query_params)
         products = products_query.all()
+        products.reverse()
     else:
         products = Products.query.all()
-
+        products.reverse()
 
     return render_template('search_product.html', products=products, form=form)
 
