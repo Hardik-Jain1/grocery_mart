@@ -37,3 +37,11 @@ class CartItem(db.Model):
     item_id = db.Column(db.Integer, db.ForeignKey('products.product_id', onupdate='CASCADE'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     item = db.relationship('Products', backref=db.backref('products', lazy=True))
+
+class Orders(db.Model):
+    __tablename__ = "orders"
+    order_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id', onupdate='CASCADE'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('products.product_id', onupdate='CASCADE'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    item = db.relationship('Products', backref=db.backref('Items', lazy=True))

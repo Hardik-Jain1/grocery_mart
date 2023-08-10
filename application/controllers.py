@@ -47,7 +47,7 @@ def admin_dashboard():
 def add_section():
     form = AddSectionForm()
     if request.method=="POST":
-        section = Sections.query.filter_by(section_name = form.name.data).all()
+        section = Sections.query.filter(Sections.section_name.ilike(form.name.data)).all()
         if section:
             flash('Section already exit','info')
             return redirect(url_for('add_section'))
@@ -66,7 +66,7 @@ def add_product(section_id):
     section = Sections.query.filter_by(section_id=section_id).one()
     if request.method=="POST":
     # if form.validate_on_submit():
-        product = Products.query.filter_by(product_name = form.name.data).first()
+        product = Products.query.filter(Products.product_name.ilike(form.name.data)).first()
         if product:
             flash('Product already exit!','info')
             return redirect(url_for('add_product', section_id=section_id))
@@ -268,7 +268,7 @@ def user_register():
 
     if form.validate_on_submit():
         hashed_password = bcrypt.hashpw(form.password.data.encode('utf-8'), bcrypt.gensalt())
-        already_user = Users.query.filter_by(user_name=form.username.data).first()
+        already_user = Users.query.filter(Users.user_name.ilike(form.username.data)).first()
         if already_user:
             flash("Use different username", 'info')
             return redirect(url_for('user_register'))
@@ -291,7 +291,7 @@ def user_register():
 def user_login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = Users.query.filter_by(user_name=form.username.data).first()
+        user = Users.query.filter(Users.user_name.ilike(form.username.data)).first()
         if user:
             if bcrypt.checkpw(form.password.data.encode('utf-8'), user.password):
                 login_user(user)
@@ -382,6 +382,9 @@ def checkout():
         flash('No item in cart','info')
         return redirect(url_for('view_cart'))
     for cart_item in cart_items:
+        order = Orders(user_id = cart_item.user_id, item_id = cart_item.item_id, quantity = cart_item.quantity)
+        db.session.add(order)
+        db.session.commit()
         db.session.delete(cart_item)
     db.session.commit()
     flash('Order is placed','info')
@@ -453,4 +456,5 @@ def delete_cart_item(cart_id):
 
 @app.route('/profile')
 def profile():
-    return render_template('profile.html', user=current_user)   
+    orders = Orders.query.filter_by(user_id=current_user.user_id)
+    return render_template('profile.html', user=current_user, orders=orders)   
