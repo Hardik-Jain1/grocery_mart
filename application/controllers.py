@@ -162,6 +162,7 @@ def edit_product(product_id):
         product.expiry_date = form.expiry_date.data
         product.unit = form.unit.data
         product.section_id = Sections.query.filter_by(section_name=form.section.data).one().section_id
+        product.quantity_available = form.quantity_available.data
         db.session.commit()
         flash('Product updated successfully!', 'success')
         return redirect(url_for('manage_product_details', product_id=product_id))
@@ -171,6 +172,7 @@ def edit_product(product_id):
     form.manufacture_date.data = product.manufacture_date
     form.expiry_date.data = product.expiry_date
     form.section.data = product.section.section_name
+    form.quantity_available.data = product.quantity_available
     return render_template('edit_product.html', form=form, product=product)
 
 @app.route('/delete_product/<int:product_id>', methods=['GET','POST'])
@@ -237,6 +239,11 @@ def admin_search_product():
 
     return render_template('admin_search_product.html', products=products, form=form)
 
+@app.route("/summary", methods=["GET", "POST"])
+@login_required
+def summary():
+    products = Products.query.filter_by(quantity_available=0).all()
+    return render_template("summary.html", products=products)
 
 
 
