@@ -1,6 +1,7 @@
 Flask
 Flask-SQLAlchemy
 Flask-login
+Flask_httpauth
 Flask-Bcrypt
 Flask-WTF
 Flask-RESTful
