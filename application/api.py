@@ -128,6 +128,8 @@ create_product_parser.add_argument('unit')
 create_product_parser.add_argument('manufacture_date')
 create_product_parser.add_argument('expiry_date')
 create_product_parser.add_argument('section_id')
+create_product_parser.add_argument('quantity_available')
+
 
 
 create_product_field = {
@@ -137,7 +139,8 @@ create_product_field = {
   "unit": fields.String,
   "manufacture_date": fields.String,
   "expiry_date": fields.String,
-  "section_id": fields.Integer
+  "section_id": fields.Integer,
+  "quantity_available" : fields.Integer
 }
 
 class ProductAPI(Resource):
@@ -157,7 +160,7 @@ class ProductAPI(Resource):
             manufacture_date = args.get("manufacture_date", None)
             expiry_date = args.get("expiry_date", None)
             section_id = args.get("section_id", None)
-
+            quantity_available = args.get("quantity_available", None)
 
             if product_name is None:
                 raise BusinessValidationError(status_code=400, error_code="BE2001", error_message="Product name is required")
@@ -167,8 +170,12 @@ class ProductAPI(Resource):
                 raise BusinessValidationError(status_code=400, error_code="BE2003", error_message="Manufacture date is required")
             if expiry_date is None:
                 raise BusinessValidationError(status_code=400, error_code="BE2004", error_message="Expiry date is required")
+            if unit is None:
+                raise BusinessValidationError(status_code=400, error_code="BE2005", error_message="Unit is required")
             if section_id is None:
-                raise BusinessValidationError(status_code=400, error_code="BE2005", error_message="Section id is required")
+                raise BusinessValidationError(status_code=400, error_code="BE2006", error_message="Section id is required")
+            if quantity_available is None:
+                raise BusinessValidationError(status_code=400, error_code="BE2007", error_message="Quantity available is required")
             
             product = Products.query.filter_by(product_name=product_name).first()
             if product:
@@ -182,9 +189,12 @@ class ProductAPI(Resource):
                                         manufacture_date=manufacture_date,
                                         expiry_date=expiry_date, 
                                         section_id=section_id, 
-                                        unit=unit)
+                                        unit=unit,
+                                        quantity_available=quantity_available)
+                
                 db.session.add(new_product)
                 db.session.commit()
+
                 new_product = Products.query.filter_by(product_name=product_name).first()
                 return new_product, 201
 
@@ -218,6 +228,7 @@ class Product_idAPI(Resource):
             manufacture_date = args.get("manufacture_date", None)
             expiry_date = args.get("expiry_date", None)
             section_id = args.get("section_id", None)
+            quantity_available = args.get("quantity_available", None)
 
 
             if product_name is None:
@@ -225,14 +236,16 @@ class Product_idAPI(Resource):
             if rate_per_unit is None:
                 raise BusinessValidationError(status_code=400, error_code="BE2002", error_message="Rate per unit is required")
             if unit is None:
-                raise BusinessValidationError(status_code=400, error_code="BE2005", error_message="Unit is required")
+                raise BusinessValidationError(status_code=400, error_code="BE2003", error_message="Unit is required")
             if manufacture_date is None:
-                raise BusinessValidationError(status_code=400, error_code="BE2003", error_message="Manufacture date is required")
+                raise BusinessValidationError(status_code=400, error_code="BE2004", error_message="Manufacture date is required")
             if expiry_date is None:
-                raise BusinessValidationError(status_code=400, error_code="BE2004", error_message="Expiry date is required")
+                raise BusinessValidationError(status_code=400, error_code="BE2005", error_message="Expiry date is required")
             if section_id is None:
-                raise BusinessValidationError(status_code=400, error_code="BE2005", error_message="Section id is required")
-            
+                raise BusinessValidationError(status_code=400, error_code="BE2006", error_message="Section id is required")
+            if quantity_available is None:
+                raise BusinessValidationError(status_code=400, error_code="BE2007", error_message="Quantity available is required")
+
             product = Products.query.filter_by(product_id=product_id).first()
             if not product:
                     raise NotExistsError(status_code=404)            
@@ -246,6 +259,7 @@ class Product_idAPI(Resource):
                 product.manufacture_date = manufacture_date
                 product.expiry_date = expiry_date
                 product.section_id = section_id
+                product.quantity_available = quantity_available
 
                 db.session.commit()
                 product = Products.query.filter_by(product_id=product_id).first()
@@ -315,9 +329,9 @@ class CartItemAPI(Resource):
     def post(self):
         try:
             args = create_cartitem_parser.parse_args()
-            user_id = args.get("user_id", None)
-            item_id = args.get("item_id", None)
-            quantity = args.get("quantity", None)
+            user_id = int(args.get("user_id", None))
+            item_id = int(args.get("item_id", None))
+            quantity = int(args.get("quantity", None))
 
             if user_id is None:
                 raise BusinessValidationError(status_code=400, error_code="BE3001", error_message="User id is required")
@@ -328,7 +342,7 @@ class CartItemAPI(Resource):
             if quantity is None:
                 raise BusinessValidationError(status_code=400, error_code="BE3003", error_message="Quantity is required")
 
-            cartitem = db.session.query(CartItem).filter(CartItem.item_id == item_id).first()
+            cartitem = CartItem.query.filter_by(user_id=user_id, item_id = item_id).first()
             if cartitem:
                 raise BusinessValidationError(status_code=409, error_code="BE3004", error_message="Cart Item already exist")  
 
@@ -339,9 +353,13 @@ class CartItemAPI(Resource):
                 if quantity>product.quantity_available:
                     raise BusinessValidationError(status_code=400, error_code="BE3006", error_message=f"Quantity should be less than {product.quantity_available}")
                 else:
+                    # print("hello")
                     new_cartitem = CartItem(user_id=user_id, item_id=item_id, quantity=quantity)
+                    # print("hello")
+
                     db.session.add(new_cartitem)
                     db.session.commit()
+                    # print("hello")
 
                     product.quantity_available -= quantity
                     db.session.commit()
@@ -378,16 +396,20 @@ class CartItem_idAPI(Resource):
             quantity = args.get("quantity", None)
 
             if item_id is None:
-                raise BusinessValidationError(status_code=400, error_code="BE2005", error_message="Item id required")
+                raise BusinessValidationError(status_code=400, error_code="BE3001", error_message="Item id required")
             if quantity is None:
-                raise BusinessValidationError(status_code=400, error_code="BE2003", error_message="Quantity is required")
+                raise BusinessValidationError(status_code=400, error_code="BE3002", error_message="Quantity is required")
          
             cartitem = CartItem.query.filter_by(user_id=user_id, item_id=item_id).first()
             if not cartitem:
                     raise NotExistsError(status_code=404)            
             else:
+                # print("hello")
                 cartitem.quantity = quantity
                 db.session.commit()
+                # print("hello")
+                # please add conditions here
+
                 cartitem = CartItem.query.filter_by(user_id=user_id, item_id=item_id).first()
                 return cartitem, 201
 
