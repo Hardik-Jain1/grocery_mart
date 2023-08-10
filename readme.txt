@@ -1,5 +1,6 @@
-# Grocery_Store_Project
-A website for ordering Groceries online.
+Grocery_Store_Project
+This is an application for ordering Groceries online.
+
 
 For running this application -
 - First create a python virtual evironment.

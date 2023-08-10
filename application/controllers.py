@@ -261,6 +261,18 @@ def user_register():
 
     if form.validate_on_submit():
         hashed_password = bcrypt.hashpw(form.password.data.encode('utf-8'), bcrypt.gensalt())
+        already_user = Users.query.filter_by(user_name=form.username.data).first()
+        if already_user:
+            flash("Use different username", 'info')
+            return redirect(url_for('user_register'))
+        
+        users = Users.query.all()
+        for user in users:
+            already_password = bcrypt.checkpw(form.password.data.encode('utf-8'), user.password)
+            if already_password:
+                flash("Use different password", 'info')
+                return redirect(url_for('user_register'))
+            
         new_user = Users(user_name=form.username.data, role=form.role.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
