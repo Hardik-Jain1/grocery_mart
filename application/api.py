@@ -353,13 +353,10 @@ class CartItemAPI(Resource):
                 if quantity>product.quantity_available:
                     raise BusinessValidationError(status_code=400, error_code="BE3006", error_message=f"Quantity should be less than {product.quantity_available}")
                 else:
-                    # print("hello")
                     new_cartitem = CartItem(user_id=user_id, item_id=item_id, quantity=quantity)
-                    # print("hello")
 
                     db.session.add(new_cartitem)
                     db.session.commit()
-                    # print("hello")
 
                     product.quantity_available -= quantity
                     db.session.commit()
@@ -392,8 +389,8 @@ class CartItem_idAPI(Resource):
         try:
             args = create_cartitem_parser.parse_args()
 
-            item_id = args.get("item_id", None)
-            quantity = args.get("quantity", None)
+            item_id = int(args.get("item_id", None))
+            quantity = int(args.get("quantity", None))
 
             if item_id is None:
                 raise BusinessValidationError(status_code=400, error_code="BE3001", error_message="Item id required")
@@ -402,13 +399,19 @@ class CartItem_idAPI(Resource):
          
             cartitem = CartItem.query.filter_by(user_id=user_id, item_id=item_id).first()
             if not cartitem:
-                    raise NotExistsError(status_code=404)            
+                    raise NotExistsError(status_code=404)
             else:
-                # print("hello")
+
+                product = Products.query.filter_by(product_id=item_id).first()
+                if quantity>product.quantity_available:
+                    raise BusinessValidationError(status_code=400, error_code="BE3003", error_message=f"Quantity should be less than {product.quantity_available}")
+                
+                old_quantity = cartitem.quantity
                 cartitem.quantity = quantity
                 db.session.commit()
-                # print("hello")
-                # please add conditions here
+
+                product.quantity_available = product.quantity_available + old_quantity - quantity
+                db.session.commit()
 
                 cartitem = CartItem.query.filter_by(user_id=user_id, item_id=item_id).first()
                 return cartitem, 201

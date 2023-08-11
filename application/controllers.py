@@ -129,6 +129,10 @@ def delete_section(section_id):
 
     products = Products.query.filter_by(section_id=None).all()
     for product in products:
+        cartitems = CartItem.query.filter_by(item_id=product.product_id).all()
+        for cartitem in cartitems:
+            db.session.delete(cartitem)
+        db.session.commit()
         db.session.delete(product)
     db.session.commit()
     flash('Section deleted successfully!', 'success')
