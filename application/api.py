@@ -401,12 +401,11 @@ class CartItem_idAPI(Resource):
             if not cartitem:
                     raise NotExistsError(status_code=404)
             else:
-
-                product = Products.query.filter_by(product_id=item_id).first()
-                if quantity>product.quantity_available:
-                    raise BusinessValidationError(status_code=400, error_code="BE3003", error_message=f"Quantity should be less than {product.quantity_available}")
-                
                 old_quantity = cartitem.quantity
+                product = Products.query.filter_by(product_id=item_id).first()
+                if quantity>(product.quantity_available+old_quantity):
+                    raise BusinessValidationError(status_code=400, error_code="BE3003", error_message=f"Quantity should be less than {product.quantity_available+old_quantity}")
+                
                 cartitem.quantity = quantity
                 db.session.commit()
 

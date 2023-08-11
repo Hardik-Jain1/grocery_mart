@@ -2,6 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Grocery Store API",
+    "description": "A website for ordering Groceries online.",
     "version": "1.0.0"
   },
   "servers": [
@@ -325,6 +326,10 @@
                     "section_id": {
                       "type": "integer",
                       "example": 1
+                    },
+                    "quantity_available": {
+                      "type": "integer",
+                      "example": 1
                     }
                   }
                 }
@@ -382,6 +387,10 @@
                   "section_id": {
                     "type": "integer",
                     "example": 1
+                  },
+                  "quantity_available": {
+                    "type": "integer",
+                    "example": 1
                   }
                 }
               }
@@ -422,6 +431,10 @@
                       "example": "2023-06-26T00:00:00.000Z"
                     },
                     "section_id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "quantity_available": {
                       "type": "integer",
                       "example": 1
                     }
@@ -533,6 +546,10 @@
                       "section_id": {
                         "type": "integer",
                         "example": 1
+                      },
+                      "quantity_available": {
+                        "type": "integer",
+                        "example": 1
                       }
                     }
                   }
@@ -574,6 +591,10 @@
                   "section_id": {
                     "type": "integer",
                     "example": 1
+                  },
+                  "quantity_available": {
+                    "type": "integer",
+                    "example": 100
                   }
                 }
               }
@@ -617,6 +638,10 @@
                     "section_id": {
                       "type": "integer",
                       "example": 1
+                    },
+                    "quantity_available": {
+                      "type": "integer",
+                      "example": 100
                     }
                   }
                 }
@@ -909,7 +934,22 @@
             }
           },
           "409": {
-            "description": "cartitem already exist"
+            "description": "cartitem already exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_code": {
+                      "type": "string"
+                    },
+                    "error_message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "500": {
             "description": "Internal Server Error"
