@@ -104,11 +104,18 @@ class Section_idAPI(Resource):
         try:
             section = Sections.query.filter_by(section_id=section_id).first()
             if section:
-                # products = Products.query.filter_by(section_id=section_id).all()
-                # for product in products:
-                #     db.session.delete(product)
-                #     db.session.commit()
-                    # enroll_obj=Enrollment.query.filter_by(course_id=course_obj.course_id).first()
+                products = Products.query.filter_by(section_id=section_id).all()
+                for product in products:
+                    cartitems = CartItem.query.filter_by(item_id=product.product_id).all()
+                    orders = Orders.query.filter_by(item_id=product.product_id).all()
+                    for cartitem in cartitems:
+                        db.session.delete(cartitem)
+                    db.session.commit()
+                    for order in orders:
+                        db.session.delete(order)
+                    db.session.commit()
+                    db.session.delete(product)
+                db.session.commit()
                 db.session.delete(section)
                 db.session.commit()
                 return "Successfully deleted", 200
@@ -277,6 +284,15 @@ class Product_idAPI(Resource):
         try:
             product = Products.query.filter_by(product_id=product_id).first()
             if product:
+                cartitems = CartItem.query.filter_by(item_id=product_id).all()
+                for cartitem in cartitems:
+                    db.session.delete(cartitem) 
+                db.session.commit()
+
+                orders = Orders.query.filter_by(item_id=product_id).all()
+                for order in orders:
+                    db.session.delete(order) 
+                db.session.commit()
                 db.session.delete(product)
                 db.session.commit()
                 return "Successfully deleted", 200

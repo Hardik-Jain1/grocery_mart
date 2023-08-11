@@ -130,8 +130,12 @@ def delete_section(section_id):
     products = Products.query.filter_by(section_id=None).all()
     for product in products:
         cartitems = CartItem.query.filter_by(item_id=product.product_id).all()
+        orders = Orders.query.filter_by(item_id=product.product_id).all()
         for cartitem in cartitems:
             db.session.delete(cartitem)
+        db.session.commit()
+        for order in orders:
+            db.session.delete(order)
         db.session.commit()
         db.session.delete(product)
     db.session.commit()
@@ -186,6 +190,11 @@ def delete_product(product_id):
     cartitems = CartItem.query.filter_by(item_id=product_id).all()
     for cartitem in cartitems:
         db.session.delete(cartitem) 
+    db.session.commit()
+
+    orders = Orders.query.filter_by(item_id=product_id).all()
+    for order in orders:
+        db.session.delete(order) 
     db.session.commit()
 
     db.session.delete(product)
