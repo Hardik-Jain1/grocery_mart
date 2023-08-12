@@ -9,6 +9,19 @@
     {% include 'admin_header.html' %}
     {% include 'banner.html' %}
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mt-5">
+        <div class="alert alert-primary alert-dismissible fade show" role="alert" id="flash-message">
+            {{ messages[-1][1] }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
     <div class="container mt-5">
     <h1>Edit Product</h1>
     <form method="POST" action="{{ url_for('edit_product', product_id=product.product_id) }}">
@@ -47,6 +60,13 @@
     <br>
     <a href="{{ url_for('manage_products', section_id=product.section_id) }}" class="btn btn-secondary">Back to Products</a>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector("#flash-message .close").addEventListener("click", function() {
+                document.querySelector("#flash-message").remove();
+            });
+        });
+    </script>
     {% include 'footer.html' %}
 </body>
 </html>

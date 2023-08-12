@@ -18,20 +18,25 @@ def home():
 
 @app.route("/admin_login", methods=["GET", "POST"])
 def admin_login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        admin = Users.query.filter_by(user_name=form.username.data, role="admin").first()
-        if admin:
-            if bcrypt.checkpw(form.password.data.encode('utf-8'), admin.password):
-                login_user(admin)
-                return redirect(url_for('admin_dashboard'))
-            else: 
+    try:
+        form = LoginForm()
+        if form.validate_on_submit():
+            admin = Users.query.filter_by(user_name=form.username.data, role="admin").first()
+            if admin:
+                if bcrypt.checkpw(form.password.data.encode('utf-8'), admin.password):
+                    login_user(admin)
+                    return redirect(url_for('admin_dashboard'))
+                else: 
+                    flash("Wrong Credentials", "warning")
+                    return redirect(url_for('admin_login'))
+            else:
                 flash("Wrong Credentials", "warning")
                 return redirect(url_for('admin_login'))
-        else:
-            flash("Wrong Credentials", "warning")
-            return redirect(url_for('admin_login'))
-    return render_template('admin_login.html', form=form)
+        return render_template('admin_login.html', form=form)
+    except:
+        form = LoginForm()
+        flash("Something went wrong, Please try again", "warning")
+        return render_template('admin_login.html', form=form)
 
 @app.route('/admin_dashboard', methods=['GET', 'POST'])
 @login_required
@@ -40,107 +45,127 @@ def admin_dashboard():
     form = AddSectionForm()
     return render_template('admin_dashboard.html', sections=sections, form=form)
 
-# @app.route()
 
 @app.route('/add_section', methods=['GET', 'POST'])
 @login_required
 def add_section():
-    form = AddSectionForm()
-    if request.method=="POST":
-        section = Sections.query.filter(Sections.section_name.ilike(form.name.data)).all()
-        if section:
-            flash('Section already exit','info')
-            return redirect(url_for('add_section'))
-        else:    
-            section = Sections(section_name=form.name.data)
-            db.session.add(section)
-            db.session.commit()
-            flash('New section added successfully!', 'success')
-            return redirect(url_for('admin_dashboard'))
-    return render_template('add_section.html', form=form)
+    try:
+        form = AddSectionForm()
+        if request.method=="POST":
+            section = Sections.query.filter(Sections.section_name.ilike(form.name.data)).all()
+            if section:
+                flash('Category already exit','info')
+                return redirect(url_for('add_section'))
+            else:    
+                section = Sections(section_name=form.name.data)
+                db.session.add(section)
+                db.session.commit()
+                flash('New Category added successfully!', 'success')
+                return redirect(url_for('admin_dashboard'))
+        return render_template('add_section.html', form=form)
+    except:
+        form = AddSectionForm()
+        flash("Something went wrong, Please try again", "warning")
+        return render_template('add_section.html', form=form)
 
 @app.route('/section/<int:section_id>/add_product', methods=['GET', 'POST'])
 @login_required
 def add_product(section_id):
-    form = AddProductForm()
-    section = Sections.query.filter_by(section_id=section_id).one()
-    if request.method=="POST":
-    # if form.validate_on_submit():
-        product = Products.query.filter(Products.product_name.ilike(form.name.data)).first()
-        if product:
-            flash('Product already exit!','info')
-            return redirect(url_for('add_product', section_id=section_id))
-        
-        query_params = {}
+    try:
+        form = AddProductForm()
+        section = Sections.query.filter_by(section_id=section_id).one()
+        if request.method=="POST":
+        # if form.validate_on_submit():
+            product = Products.query.filter(Products.product_name.ilike(form.name.data)).first()
+            if product:
+                flash('Product already exit!','info')
+                return redirect(url_for('add_product', section_id=section_id))
+            
+            query_params = {}
 
-        product_name = form.name.data
-        if product_name:
-            query_params['product_name'] = product_name
+            product_name = form.name.data
+            if product_name:
+                query_params['product_name'] = product_name
 
-        rate_per_unit = form.price.data
-        if rate_per_unit:
-            query_params['rate_per_unit'] = rate_per_unit
+            rate_per_unit = form.price.data
+            if rate_per_unit:
+                query_params['rate_per_unit'] = rate_per_unit
 
-        manufacture_date = form.manufacture_date.data
-        if manufacture_date:
-            query_params['manufacture_date'] = manufacture_date
+            manufacture_date = form.manufacture_date.data
+            if manufacture_date:
+                query_params['manufacture_date'] = manufacture_date
 
-        expiry_date = form.expiry_date.data
-        if expiry_date:
-            query_params['expiry_date'] = expiry_date
-        
-        unit = form.unit.data
-        if unit:
-            query_params['unit'] = unit
-        
-        quantity_available = form.quantity_available.data
-        if quantity_available:
-            query_params['quantity_available'] = quantity_available
+            expiry_date = form.expiry_date.data
+            if expiry_date:
+                query_params['expiry_date'] = expiry_date
+            
+            unit = form.unit.data
+            if unit:
+                query_params['unit'] = unit
+            
+            quantity_available = form.quantity_available.data
+            if quantity_available:
+                query_params['quantity_available'] = quantity_available
 
-        query_params["section_id"] = section_id
-        product = Products(**query_params)
+            query_params["section_id"] = section_id
+            product = Products(**query_params)
 
-        db.session.add(product)
-        db.session.commit()
+            db.session.add(product)
+            db.session.commit()
 
-        flash('New product added successfully!', 'success')
-        return redirect(url_for('manage_products', section_id=section_id))
-    return render_template('add_product.html', form=form, section_id=section_id)
+            flash('New product added successfully!', 'success')
+            return redirect(url_for('manage_products', section_id=section_id))
+        return render_template('add_product.html', form=form, section_id=section_id)
+    except:
+        form = AddProductForm()
+        flash('Something went wrong, Please check the details and try again', 'info')
+        return render_template('add_product.html', form=form, section_id=section_id)
+
 
 @app.route('/edit_section/<int:section_id>', methods=['GET', 'POST'])
 @login_required
 def edit_section(section_id):
-    section = Sections.query.get_or_404(section_id)
-    form = AddSectionForm()
-    if request.method=="POST":
-        section.section_name = form.name.data
-        db.session.commit()
-        flash('Section updated successfully!', 'success')
-        return redirect(url_for('admin_dashboard'))
-    form.name.data = section.section_name
-    return render_template('edit_section.html', form=form, section=section)
+    try:
+        section = Sections.query.get_or_404(section_id)
+        form = AddSectionForm()
+        if request.method=="POST":
+            section.section_name = form.name.data
+            db.session.commit()
+            flash('Category updated successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        form.name.data = section.section_name
+        return render_template('edit_section.html', form=form, section=section)
+    except:
+        form = AddSectionForm()
+        section = Sections.query.get_or_404(section_id)
+        flash('Something went wrong, Please check the details and try again', 'info')
+        return render_template('edit_section.html', form=form, section=section)
 
 @app.route('/delete_section/<int:section_id>', methods=['GET','POST'])
 @login_required
 def delete_section(section_id):
-    section = Sections.query.get_or_404(section_id)
-    db.session.delete(section)
-    db.session.commit()
+    try:
+        section = Sections.query.get_or_404(section_id)
+        db.session.delete(section)
+        db.session.commit()
 
-    products = Products.query.filter_by(section_id=None).all()
-    for product in products:
-        cartitems = CartItem.query.filter_by(item_id=product.product_id).all()
-        orders = Orders.query.filter_by(item_id=product.product_id).all()
-        for cartitem in cartitems:
-            db.session.delete(cartitem)
+        products = Products.query.filter_by(section_id=None).all()
+        for product in products:
+            cartitems = CartItem.query.filter_by(item_id=product.product_id).all()
+            orders = Orders.query.filter_by(item_id=product.product_id).all()
+            for cartitem in cartitems:
+                db.session.delete(cartitem)
+            db.session.commit()
+            for order in orders:
+                db.session.delete(order)
+            db.session.commit()
+            db.session.delete(product)
         db.session.commit()
-        for order in orders:
-            db.session.delete(order)
-        db.session.commit()
-        db.session.delete(product)
-    db.session.commit()
-    flash('Section deleted successfully!', 'success')
-    return redirect(url_for('admin_dashboard'))
+        flash('Category deleted successfully!', 'success')
+        return redirect(url_for('admin_dashboard'))
+    except:
+        flash("Something went wrong, Please try again", "warning")
+        return redirect(url_for('admin_dashboard'))
 
 @app.route("/manage_products/<int:section_id>")
 @login_required
@@ -159,48 +184,62 @@ def manage_product_details(product_id):
 @app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 def edit_product(product_id):
-    product = Products.query.get_or_404(product_id)
-    form = AddProductForm()
-    # form.section.choices = [(section.id, section.name) for section in Sections.query.all()]
-    # if form.validate_on_submit():
-    if request.method=="POST":
-        product.product_name = form.name.data
-        product.rate_per_unit = form.price.data
-        product.manufacture_date = form.manufacture_date.data
-        product.expiry_date = form.expiry_date.data
-        product.unit = form.unit.data
-        product.section_id = Sections.query.filter_by(section_name=form.section.data).one().section_id
-        product.quantity_available = form.quantity_available.data
-        db.session.commit()
-        flash('Product updated successfully!', 'success')
-        return redirect(url_for('manage_product_details', product_id=product_id))
-    form.name.data = product.product_name
-    form.price.data = product.rate_per_unit
-    form.unit.data = product.unit
-    form.manufacture_date.data = product.manufacture_date
-    form.expiry_date.data = product.expiry_date
-    form.section.data = product.section.section_name
-    form.quantity_available.data = product.quantity_available
-    return render_template('edit_product.html', form=form, product=product)
+    try:
+        product = Products.query.get_or_404(product_id)
+        form = AddProductForm()
+        # form.section.choices = [(section.id, section.name) for section in Sections.query.all()]
+        # if form.validate_on_submit():
+        if request.method=="POST":
+            product.product_name = form.name.data
+            product.rate_per_unit = form.price.data
+            product.manufacture_date = form.manufacture_date.data
+            product.expiry_date = form.expiry_date.data
+            product.unit = form.unit.data
+            product.section_id = Sections.query.filter_by(section_name=form.section.data).one().section_id
+            product.quantity_available = form.quantity_available.data
+            db.session.commit()
+            flash('Product updated successfully!', 'success')
+            return redirect(url_for('manage_product_details', product_id=product_id))
+        form.name.data = product.product_name
+        form.price.data = product.rate_per_unit
+        form.unit.data = product.unit
+        form.manufacture_date.data = product.manufacture_date
+        form.expiry_date.data = product.expiry_date
+        form.section.data = product.section.section_name
+        form.quantity_available.data = product.quantity_available
+        return render_template('edit_product.html', form=form, product=product)
+    except:
+        product = Products.query.get_or_404(product_id)
+        form = AddProductForm()
+        flash("Something went wrong, Please try again", "warning")
+        return render_template('edit_product.html', form=form, product=product)
+
 
 @app.route('/delete_product/<int:product_id>', methods=['GET','POST'])
 def delete_product(product_id):
-    product = Products.query.get_or_404(product_id)
-    section_id = product.section_id
-    cartitems = CartItem.query.filter_by(item_id=product_id).all()
-    for cartitem in cartitems:
-        db.session.delete(cartitem) 
-    db.session.commit()
+    try:
+        product = Products.query.get_or_404(product_id)
+        section_id = product.section_id
+        cartitems = CartItem.query.filter_by(item_id=product_id).all()
+        for cartitem in cartitems:
+            db.session.delete(cartitem) 
+        db.session.commit()
 
-    orders = Orders.query.filter_by(item_id=product_id).all()
-    for order in orders:
-        db.session.delete(order) 
-    db.session.commit()
+        orders = Orders.query.filter_by(item_id=product_id).all()
+        for order in orders:
+            db.session.delete(order) 
+        db.session.commit()
 
-    db.session.delete(product)
-    db.session.commit()
-    flash('Product deleted successfully!', 'success')
-    return redirect(url_for('manage_products', section_id=section_id))
+        db.session.delete(product)
+        db.session.commit()
+        flash('Product deleted successfully!', 'success')
+        return redirect(url_for('manage_products', section_id=section_id))
+    except:
+        product = Products.query.get_or_404(product_id)
+        section_id = product.section_id
+        flash("Something went wrong, Please try again", "warning")
+        return redirect(url_for('manage_products', section_id=section_id))
+
 
 @app.route("/admin_search_section", methods=["GET", "POST"])
 @login_required
@@ -277,45 +316,57 @@ def summary():
 
 @app.route("/user_register", methods=['GET', 'POST'])
 def user_register():
-    form = RegisterForm()
+    try:
+        form = RegisterForm()
 
-    if form.validate_on_submit():
-        hashed_password = bcrypt.hashpw(form.password.data.encode('utf-8'), bcrypt.gensalt())
-        already_user = Users.query.filter(Users.user_name.ilike(form.username.data)).first()
-        if already_user:
-            flash("Use different username", 'info')
-            return redirect(url_for('user_register'))
-        
-        users = Users.query.all()
-        for user in users:
-            already_password = bcrypt.checkpw(form.password.data.encode('utf-8'), user.password)
-            if already_password:
-                flash("Use different password", 'info')
+        if form.validate_on_submit():
+            hashed_password = bcrypt.hashpw(form.password.data.encode('utf-8'), bcrypt.gensalt())
+            already_user = Users.query.filter(Users.user_name.ilike(form.username.data)).first()
+            if already_user:
+                flash("Use different username", 'info')
                 return redirect(url_for('user_register'))
             
-        new_user = Users(user_name=form.username.data, role=form.role.data, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect(url_for('user_login'))
+            users = Users.query.all()
+            for user in users:
+                already_password = bcrypt.checkpw(form.password.data.encode('utf-8'), user.password)
+                if already_password:
+                    flash("Use different password", 'info')
+                    return redirect(url_for('user_register'))
+                
+            new_user = Users(user_name=form.username.data, role=form.role.data, password=hashed_password)
+            db.session.add(new_user)
+            db.session.commit()
+            return redirect(url_for('user_login'))
 
-    return render_template('user_register.html', form=form)
+        return render_template('user_register.html', form=form)
+    except:
+        form = RegisterForm()
+        flash("Something went wrong, Please try again", "warning")
+        return render_template('user_register.html', form=form)
+
 
 @app.route("/user_login", methods=["GET", "POST"])
 def user_login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = Users.query.filter(Users.user_name.ilike(form.username.data)).first()
-        if user:
-            if bcrypt.checkpw(form.password.data.encode('utf-8'), user.password):
-                login_user(user)
-                return redirect(url_for('user_dashboard'))
-            else: 
+    try:
+        form = LoginForm()
+        if form.validate_on_submit():
+            user = Users.query.filter(Users.user_name.ilike(form.username.data)).first()
+            if user:
+                if bcrypt.checkpw(form.password.data.encode('utf-8'), user.password):
+                    login_user(user)
+                    return redirect(url_for('user_dashboard'))
+                else: 
+                    flash("Wrong Credentials", "warning")
+                    return redirect(url_for('user_login'))
+            else:
                 flash("Wrong Credentials", "warning")
                 return redirect(url_for('user_login'))
-        else:
-            flash("Wrong Credentials", "warning")
-            return redirect(url_for('user_login'))
-    return render_template('user_login.html', form=form)
+        return render_template('user_login.html', form=form)
+    except:
+        form = LoginForm()
+        flash("Something went wrong, Please try again", "warning")
+        return render_template('user_login.html', form=form)
+
 
 @app.route("/user_dashboard/")
 @login_required
@@ -390,18 +441,22 @@ def view_cart():
 @app.route("/checkout")
 @login_required
 def checkout():
-    cart_items = CartItem.query.filter_by(user_id=current_user.user_id).all()
-    if cart_items==[]:
-        flash('No item in cart','info')
-        return redirect(url_for('view_cart'))
-    for cart_item in cart_items:
-        order = Orders(user_id = cart_item.user_id, item_id = cart_item.item_id, quantity = cart_item.quantity)
-        db.session.add(order)
+    try:
+        cart_items = CartItem.query.filter_by(user_id=current_user.user_id).all()
+        if cart_items==[]:
+            flash('No item in cart','info')
+            return redirect(url_for('view_cart'))
+        for cart_item in cart_items:
+            order = Orders(user_id = cart_item.user_id, item_id = cart_item.item_id, quantity = cart_item.quantity)
+            db.session.add(order)
+            db.session.commit()
+            db.session.delete(cart_item)
         db.session.commit()
-        db.session.delete(cart_item)
-    db.session.commit()
-    flash('Order is placed','info')
-    return redirect(url_for('view_cart'))
+        flash('Order is placed','info')
+        return redirect(url_for('view_cart'))
+    except:
+        flash("Something went wrong, Please try again", "warning")
+        return redirect(url_for('view_cart'))
 
 @app.route("/search_section", methods=["GET", "POST"])
 @login_required
