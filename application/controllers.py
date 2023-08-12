@@ -75,7 +75,6 @@ def add_product(section_id):
         form = AddProductForm()
         section = Sections.query.filter_by(section_id=section_id).one()
         if request.method=="POST":
-        # if form.validate_on_submit():
             product = Products.query.filter(Products.product_name.ilike(form.name.data)).first()
             if product:
                 flash('Product already exit!','info')
@@ -187,8 +186,6 @@ def edit_product(product_id):
     try:
         product = Products.query.get_or_404(product_id)
         form = AddProductForm()
-        # form.section.choices = [(section.id, section.name) for section in Sections.query.all()]
-        # if form.validate_on_submit():
         if request.method=="POST":
             product.product_name = form.name.data
             product.rate_per_unit = form.price.data
