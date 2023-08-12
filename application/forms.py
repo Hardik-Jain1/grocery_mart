@@ -11,7 +11,7 @@ class RegisterForm(FlaskForm):
     role = HiddenField(default="user")
 
     password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
+                             InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
 
     submit = SubmitField('Register')
         
@@ -21,7 +21,7 @@ class LoginForm(FlaskForm):
                            InputRequired(), Length(min=4)], render_kw={"placeholder": "Username"})
 
     password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
+                             InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
 
     submit = SubmitField('Login')
 
