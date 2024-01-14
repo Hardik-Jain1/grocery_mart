@@ -1,4 +1,4 @@
-# Grocery_Store_Project
+# Grocery Mart
 A website for ordering Groceries online.
 
 For running this application -
