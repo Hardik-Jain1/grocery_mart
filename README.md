@@ -1,5 +1,6 @@
 # Grocery Mart
 A website for ordering Groceries online.
+Grocery Mart is a online grocery store which provides both users and administrators with a user-friendly platform to browse and manage grocery products. The website includes features like user and admin login, inventory and product management, browse and buys products.
 
 For running this application -
 - First create a python virtual evironment.
